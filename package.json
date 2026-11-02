@@ -1,0 +1,8 @@
+{
+  "name":"beyond-the-crash-cos30045",
+  "version":"1.0.0",
+  "private":true,
+  "type":"module",
+  "description":"Buildless D3 story using the supplied KNIME road crash hospitalisation export.",
+  "scripts":{"start":"node server.mjs","test":"node --test tests/*.test.mjs"}
+}
