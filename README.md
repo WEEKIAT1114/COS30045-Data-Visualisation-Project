@@ -7,7 +7,7 @@ A fixed-screen D3 dashboard about hospitalised road crash injuries in Australia,
 Open this folder in VS Code and use **Live Server** on `index.html`, or run:
 
 ```powershell
-cd "C:\Users\Edward\Downloads\COS30045-Project"
+cd "C:\Users\Edward\Downloads\COS30045-Data-Visualisation-Project"
 node server.mjs
 ```
 
@@ -44,6 +44,14 @@ Other supporting files:
 - [VALIDATION.md](docs/VALIDATION.md): data and browser checks.
 
 ## Code structure
+
+Source files use multiple lines, consistent two-space indentation and separated
+CSS declarations, JavaScript statements and D3 method chains. HTML templates in
+JavaScript are also expanded so their nested elements are visible.
+
+The shared formatting settings are in `.prettierrc.json`. The `/* HTML */`
+comments identify embedded markup for Prettier; they have no runtime behaviour.
+`.prettierignore` preserves the original CSV and the third-party D3 distribution.
 
 | File | Responsibility |
 | --- | --- |

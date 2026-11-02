@@ -1,0 +1,4 @@
+# Retain the original third-party library and supplied data.
+vendor/
+data/
+.git/

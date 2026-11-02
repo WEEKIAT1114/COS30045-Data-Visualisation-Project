@@ -1,5 +1,13 @@
 # GenAI acknowledgement and prompt summary
 
+The user renamed the project folder to
+`C:\Users\Edward\Downloads\COS30045-Data-Visualisation-Project` and requested
+readable code rather than compressed lines. Codex assisted with multi-line
+formatting of the project HTML, CSS, JavaScript, server, tests and configuration,
+including embedded HTML templates. Formatting settings and the README path were
+updated. Structural comparisons and the existing tests checked that the changes
+preserved the application logic, stylesheet rules, page content and source data.
+
 On 3 November 2026 the user provided a four-chart dashboard wireframe and requested shared year/remoteness/age/sex/road-user filters, page navigation, and advice on data sufficiency. Codex assisted with the grid layout, validated shared-filter model, D3 renderers, expanded chart/table views, rates-readiness page, glossary, new tests and documentation. The historical CSV was preserved; no population denominators or rates were fabricated.
 
 OpenAI Codex assisted with this project on 2 November 2026. This file describes the work performed; it does not claim that the team independently authored generated code or conducted participant research.

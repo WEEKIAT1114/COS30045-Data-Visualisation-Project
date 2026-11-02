@@ -1,5 +1,23 @@
 # Implementation validation
 
+## Code readability revision — 3 November 2026
+
+Reformatted the project source into multiple lines with two-space indentation,
+separate CSS declarations, expanded D3 method chains, readable arrays/objects,
+and nested HTML templates. Added shared Prettier settings and an ignore file;
+the original CSV and vendored D3 library were preserved. The README now uses the
+renamed `COS30045-Data-Visualisation-Project` folder.
+
+All **22 regression tests pass**, all JavaScript files pass syntax checks, and
+Prettier's formatting and internal consistency checks pass. Independent parsed
+comparisons confirm equivalent JavaScript logic in 12 application/server/test
+files, equivalent CSS selectors/declarations/media queries/values, equivalent
+structure and normalised text in the nine HTML entries and SVG favicon, and an
+equivalent package configuration. The nine generated page routes also retain
+their element structure, attributes and normalised text. Whitespace within HTML
+templates is intentionally expanded for readability. No new browser or
+participant usability evaluation was conducted for this formatting revision.
+
 ## Current colour theme — 3 November 2026
 
 Applied the user's sand/lavender/navy palette consistently across the masthead, navigation, controls, charts, information pages, data tables, tooltip and favicon. D3 and CSS share colour tokens. The input CSV is unchanged; all **22 regression tests pass** and application JavaScript syntax checks pass.
