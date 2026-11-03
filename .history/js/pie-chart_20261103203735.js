@@ -1,0 +1,78 @@
+d3.csv("../data/all-years-road-user.csv", d => {
+
+  return {
+
+    road_user: d.road_user,
+
+    hospitalisations: +d.hospitalisations
+
+  };
+
+}).then(data => {
+
+    console.log(data);
+
+    console.log(data.length);
+
+    drawPieChart(data);
+
+});
+
+const drawPieChart = data => {
+  const width = 1000;
+  const height = 500;
+  const radius = Math.min(width, height) / 2 - 20;
+
+const color = d3.scaleOrdinal()
+.domain(data.map(d => d.road_user))
+.range(d3.schemeSet2);
+
+const pie = d3.pie()
+.value(d => d.hospitalisations)
+.sort(null);
+
+const arcGenerator = d3.arc()
+.innerRadius(0)
+.outerRadius(150)
+.padAngle(0.00)
+.cornerRadius(0);
+
+const svg = d3.select("#pie-chart")
+.append("svg")
+.attr("viewBox", `0,0, ${width}, ${height}`)
+.style("border", "1px solid black");
+
+const innerChart = svg
+.append("g")
+.attr("transform", `translate(${width/2}, ${height/2})`)
+//title
+innerChart
+        svg.append('text')
+        .attr('x', width/2 + 10)
+        .attr('y', 30)
+        .attr('text-anchor', 'middle')
+        .style('font-family', 'Helvetica')
+        .style('font-size', 20)
+        .text('Road Crash Hospitalisations by Road User in Australia');
+
+
+innerChart
+.selectAll("path")
+.data(pie(data))
+.join("path")
+.datum(data.filter(function(d){return d.year==2021}))
+.attr("d", arcGenerator)
+.attr("fill", d => color(d.data.road_user))
+.attr("stroke", "white")
+.attr("stroke-width", 2)
+
+innerChart
+ .selectAll("text")
+ .data(pie(data))
+ .join("text")
+ .text(d=>d.data.road_user)
+.attr("transform", function(d) { return `translate(${arcGenerator.centroid(d)})`})
+  .style("text-anchor", "middle")
+  .style("font-size", 17)
+
+}

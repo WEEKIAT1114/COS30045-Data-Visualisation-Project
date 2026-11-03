@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+      <h1 class="title">Dashboard</h1>
+      <button><a href="index.html">Annual Hospitalisation</a> </button>
+      <button><a href="categories.html">By Categories</a> </button>
+            <div class="row">
+  <div class="column left" style="background-color:#aaa;">
+      <p>Enter Year (2011 - 2021):
+      <input type="number" id=current-year name="year" value=2021 min=2011 max="2021">
+      <button onclick="changeYear()">OK</button>
+      </div>
+      <div class="column right" style="background-color:#bbb;">
+      <p id="year">2021</p>
+      <script src="js/main.js"></script>
+      </div>
+      </div>
+      <p>Show By:
+      <!--https://d3-graph-gallery.com/graph/interactivity_button.html-->
+  <input type="radio" name="category" value="road-user" checked> Road User
+  <input type="radio" name="category" value="age-group"> Age Group
+  <input type="radio" name="category" value="remoteness"> Remoteness Area </p>
+      <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    </body>
+</html>
