@@ -5,20 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Australia hospitalised road crash injuries, 2011–2021. Four D3 charts with shared filters."
+      content="Explore Australian road crash hospitalisations, 2011–2021, with linked D3 charts and source definitions."
     />
-    <title>Glossary | Road Injury Australia</title>
-    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="css/style.css" />
+    <title>Glossary | Road Crash Hospitalisation Dashboard</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="stylesheet" href="css/styles.css" />
   </head>
   <body data-page="glossary">
-    <!-- GenAI assistance: js/main.js and docs/AI-ACKNOWLEDGEMENT.md. -->
-    <div id="app"><p>Loading Glossary…</p></div>
-    <noscript
-      >Enable JavaScript to explore this page.
-      <a href="data/road_crash_master.csv" download>Download the data</a>.</noscript
-    >
+    <!-- GenAI assistance is acknowledged in js/app.js and docs/AI-ACKNOWLEDGEMENT.md. -->
+    <a class="skip-link" href="#main">Skip to page content</a>
+    <div id="app">
+      <header class="site-header"></header>
+      <section id="filters-shell" aria-label="Dashboard filters">
+        <div class="filter-bar">
+          <form id="filters" aria-label="Filter all charts"></form>
+        </div>
+      </section>
+      <main id="main" tabindex="-1"></main>
+      <footer class="site-footer">
+        <span>BITRE · September 2023 release</span>
+        <span>COS30045 · Group 3</span>
+        <a data-route="glossary" href="glossary.html">Definitions &amp; source</a>
+      </footer>
+    </div>
+    <dialog id="details" aria-labelledby="details-title">
+      <div class="details-heading">
+        <h2 id="details-title">Chart details</h2>
+        <button
+          id="details-close"
+          class="icon-button"
+          aria-label="Close chart details"
+        ></button>
+      </div>
+      <div class="details-tabs" role="group" aria-label="Chart detail view">
+        <button data-detail-mode="info" aria-pressed="true">About this chart</button>
+        <button data-detail-mode="data" aria-pressed="false">Data table</button>
+      </div>
+      <p id="details-info"></p>
+      <div id="details-data" hidden></div>
+      <div id="details-pager" hidden>
+        <button id="details-previous" class="text-button">‹ Previous</button>
+        <span id="details-position" aria-live="polite"></span>
+        <button id="details-next" class="text-button">Next ›</button>
+      </div>
+    </dialog>
+    <div id="tooltip" role="tooltip" hidden></div>
+    <noscript>
+      This dashboard needs JavaScript. You can
+      <a href="data/road_crash_master.csv" download>download the source CSV</a>
+      .
+    </noscript>
     <script src="vendor/d3.v7.9.0.min.js"></script>
-    <script type="module" src="js/main.js"></script>
+    <script type="module" src="js/app.js"></script>
   </body>
 </html>

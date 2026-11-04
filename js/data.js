@@ -1,148 +1,142 @@
-// Read-only transformations of the exact KNIME export. No population rates are inferred.
-// GenAI assistance and prompt summary: docs/AI-ACKNOWLEDGEMENT.md.
-import { YEARS, AGE_GROUPS, ROAD_USERS, SEXES, REMOTENESS } from './constants.js';
-const FIELDS = [
-  'year',
-  'remoteness',
-  'age_group',
-  'sex',
-  'road_user',
-  'hospitalisations',
-];
+// GenAI assistance is acknowledged in docs/AI-ACKNOWLEDGEMENT.md.
+// Pure data functions: these can be tested without a browser or chart code.
+import { AGE_GROUPS, ROAD_USERS, YEARS, FILTERS } from './config.js';
 
-// Year selects the snapshot. Other filters apply to both snapshots and full-history trends.
+export function validateRows(rawRows) {
+  if (!rawRows.length) throw new Error('The CSV contains no records.');
+  const required = [
+    'record_type',
+    'year',
+    'remoteness',
+    'age_group',
+    'sex',
+    'road_user',
+    'counterparty',
+    'state',
+    'indigenous_status',
+    'hospitalisations',
+    'bed_days',
+  ];
+  for (const field of required) {
+    if (!(field in rawRows[0])) throw new Error(`CSV column missing: ${field}`);
+  }
 
-export function filterRows(rows, filters = {}) {
-  return rows.filter(
-    (row) =>
-      (!filters.remoteness ||
-        filters.remoteness === 'All' ||
-        row.remoteness === filters.remoteness) &&
-      (!filters.age || filters.age === 'All' || row.age_group === filters.age) &&
-      (!filters.sex || filters.sex === 'All' || row.sex === filters.sex) &&
-      (!filters.road || filters.road === 'All' || row.road_user === filters.road),
-  );
-}
-
-export function validateRows(source, columns = FIELDS) {
-  if (!source.length) throw new Error('The CSV is empty.');
-  if (FIELDS.some((field) => !columns.includes(field)))
-    throw new Error(`CSV headers must include: ${FIELDS.join(', ')}.`);
+  const knownTypes = ['national_detail', 'state_annual', 'first_nations_annual'];
   const seen = new Set();
-  const rows = source.map((row, index) => {
-    for (const field of FIELDS) {
-      if (row[field] == null || String(row[field]).trim() === '')
-        throw new Error(`Blank ${field} on CSV record ${index + 1}.`);
+
+  return rawRows.map((raw, index) => {
+    const row = { ...raw };
+    row.year = Number(raw.year);
+    if (!YEARS.includes(row.year) || !knownTypes.includes(row.record_type)) {
+      throw new Error(`Invalid year or record type on CSV row ${index + 2}.`);
     }
-    const year = Number(row.year),
-      hospitalisations = Number(row.hospitalisations);
-    if (!Number.isInteger(year) || !YEARS.includes(year))
-      throw new Error(`Unsupported year on record ${index + 1}.`);
-    if (!Number.isSafeInteger(hospitalisations) || hospitalisations < 0)
-      throw new Error(`Invalid hospitalisation count on record ${index + 1}.`);
-    for (const [key, values] of [
-      ['age_group', AGE_GROUPS],
-      ['road_user', ROAD_USERS],
-      ['sex', SEXES],
-      ['remoteness', REMOTENESS],
-    ]) {
-      if (!values.includes(row[key]))
-        throw new Error(`Unexpected ${key} '${row[key]}' on record ${index + 1}.`);
+    for (const field of ['hospitalisations', 'bed_days']) {
+      row[field] = raw[field] === '' ? null : Number(raw[field]);
+      if (
+        row[field] !== null &&
+        (!Number.isSafeInteger(row[field]) || row[field] < 0)
+      ) {
+        throw new Error(`Invalid ${field} on CSV row ${index + 2}.`);
+      }
     }
-    const key = JSON.stringify([
-      year,
-      row.remoteness,
-      row.age_group,
-      row.sex,
-      row.road_user,
-    ]);
-    if (seen.has(key))
-      throw new Error(`Duplicate grouped record ${index + 1}; check the KNIME export.`);
-    seen.add(key);
-    return { ...row, year, hospitalisations };
+    if (row.hospitalisations === null)
+      throw new Error('A hospitalisation count is missing.');
+
+    if (row.record_type === 'national_detail') {
+      if (row.bed_days === null) throw new Error('National bed days are missing.');
+      for (const field of FILTERS.filter((item) => item.key !== 'year')) {
+        const values =
+          field.key === 'sex'
+            ? [...field.values, 'intersex or indeterminate or missing']
+            : field.values;
+        if (!values.includes(row[field.key]))
+          throw new Error(`Unknown ${field.key}: ${row[field.key]}`);
+      }
+      const key = [
+        row.year,
+        row.remoteness,
+        row.age_group,
+        row.sex,
+        row.road_user,
+        row.counterparty,
+      ].join('|');
+      if (seen.has(key)) throw new Error(`Duplicate national record: ${key}`);
+      seen.add(key);
+    }
+    return row;
   });
-  if (YEARS.some((year) => !rows.some((row) => row.year === year)))
-    throw new Error('The CSV must contain every year from 2011 to 2021.');
-  return rows;
 }
 
-export function buildModel(rows) {
-  const d3 = globalThis.d3;
-  const sum = (values) => d3.sum(values, (d) => d.hospitalisations);
-  const annual = d3.rollup(rows, sum, (d) => d.year);
-  const road = d3.rollup(
-    rows,
-    sum,
-    (d) => d.year,
-    (d) => d.road_user,
-  );
-  const ages = d3.rollup(
-    rows,
-    sum,
-    (d) => d.year,
-    (d) => d.age_group,
-    (d) => d.road_user,
-  );
-  const sexes = d3.rollup(
-    rows,
-    sum,
-    (d) => d.year,
-    (d) => d.sex,
-  );
-  const remoteness = d3.rollup(
-    rows,
-    sum,
-    (d) => d.year,
-    (d) => d.remoteness,
-  );
-  const cells = (year) =>
-    AGE_GROUPS.filter((age) => ages.get(year)?.has(age)).flatMap((age) => {
-      const row = ages.get(year).get(age);
-      const total = d3.sum(row.values());
-      // Null is intentionally distinct from an explicit zero. Never impute absent cells.
-      return ROAD_USERS.map((user) => ({
-        age,
-        user,
-        total,
-        value: row.has(user) ? row.get(user) : null,
-        share: row.has(user) && total > 0 ? row.get(user) / total : null,
-      }));
+export function filterNational(rows, filters, includeYear = true) {
+  // Never add the national, state and First Nations summaries together.
+  return rows.filter((row) => {
+    if (row.record_type !== 'national_detail') return false;
+    for (const field of FILTERS) {
+      if (field.key === 'year' && !includeYear) continue;
+      const selected = filters[field.key];
+      if (selected !== 'All' && String(row[field.key]) !== selected) return false;
+    }
+    return true;
+  });
+}
+
+export function totals(rows) {
+  let count = 0;
+  let beds = 0;
+  for (const row of rows) {
+    count += row.hospitalisations;
+    beds += row.bed_days;
+  }
+  return { count, beds, ratio: count > 0 ? beds / count : null, records: rows.length };
+}
+
+export function groupRows(rows, field, order = null) {
+  const groups = new Map();
+  for (const row of rows) {
+    const key = row[field];
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(row);
+  }
+  const keys = order || [...groups.keys()];
+  return keys
+    .filter((key) => groups.has(key))
+    .map((key) => ({ key, ...totals(groups.get(key)) }));
+}
+
+export function annualData(rows) {
+  const grouped = new Map(groupRows(rows, 'year').map((item) => [item.key, item]));
+  return YEARS.map((year) => ({
+    key: year,
+    ...(grouped.get(year) || { count: null, beds: null, ratio: null }),
+  }));
+}
+
+export function distributionData(rows, roadFilter) {
+  if (roadFilter !== 'All') return groupRows(rows, 'road_user', ROAD_USERS);
+  const groups = groupRows(rows, 'road_user', ROAD_USERS);
+  const result = groups.filter((item) => ROAD_USERS.slice(0, 5).includes(item.key));
+  const others = groups.filter((item) => !ROAD_USERS.slice(0, 5).includes(item.key));
+  if (others.length)
+    result.push({
+      key: 'Other road users',
+      count: others.reduce((sum, item) => sum + item.count, 0),
     });
-  return {
-    rows,
-    annual,
-    road,
-    sexes,
-    remoteness,
-    cells,
-    maxCell: d3.max(YEARS.flatMap(cells), (d) => d.value) ?? 0,
-    ageData(year, user = 'All') {
-      return AGE_GROUPS.filter((age) => ages.get(year)?.has(age)).map((age) => {
-        const group = ages.get(year).get(age);
-        return {
-          age,
-          value:
-            user === 'All'
-              ? d3.sum(group.values())
-              : group.has(user)
-                ? group.get(user)
-                : null,
-        };
-      });
-    },
-    series(user) {
-      return YEARS.map((year) => ({
-        year,
-        user,
-        value: road.get(year)?.get(user) ?? null,
-      }));
-    },
-  };
+  return result;
 }
 
-export async function loadData() {
-  if (!globalThis.d3)
-    throw new Error('The local D3 library did not load. Check the vendor folder.');
-  const source = await globalThis.d3.csv('data/road_crash_master.csv');
-  return buildModel(validateRows(source, source.columns));
+export function matrixData(rows) {
+  const ages = groupRows(rows, 'age_group', AGE_GROUPS).map((item) => item.key);
+  const users = groupRows(rows, 'road_user', ROAD_USERS).map((item) => item.key);
+  const cells = new Map();
+  for (const row of rows) {
+    const key = `${row.age_group}|${row.road_user}`;
+    cells.set(key, (cells.get(key) || 0) + row.hospitalisations);
+  }
+  return ages.flatMap((age) =>
+    users.map((user) => ({
+      age,
+      user,
+      count: cells.has(`${age}|${user}`) ? cells.get(`${age}|${user}`) : null,
+    })),
+  );
 }
