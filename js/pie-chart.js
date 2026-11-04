@@ -28,7 +28,7 @@ const drawPieChart = data => {
 
 const color = d3.scaleOrdinal()
 .domain(data.map(d => d.road_user))
-.range(d3.schemeSet2);
+.range(d3.schemeSet3);
 
 const pie = d3.pie()
 .value(d => d.hospitalisations)
@@ -86,12 +86,13 @@ innerChart
 function update(selectedGroup) {
 
       // Create new data with the selection?
-      const dataFilter = data.filter(function(d){return d.year==selectedGroup})
+      const dataFilter = pie(data.filter(function(d){ return d.year == selectedGroup}))
 
       // Give these new data to update line
 innerChart
+.datum(dataFilter)
 .selectAll("path")
-.data(pie(data.filter(function(d){ return d.year == 2021})))
+.data(pie(data.filter(function(d){ return d.year == selectedGroup})))
 .join("path")
 .attr("d", arcGenerator)
 .attr("fill", d => color(d.data.road_user))
@@ -99,6 +100,7 @@ innerChart
 .attr("stroke-width", 0)
 
 innerChart
+.datum(dataFilter)
  .selectAll("text")
 .data(pie(data.filter(function(d){ return d.year == selectedGroup})))
  .join("text")
