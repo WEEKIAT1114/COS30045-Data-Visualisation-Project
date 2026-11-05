@@ -1141,9 +1141,7 @@ dialog[open] {
   .insights-grid .card-heading h2 {
     font-size: 17px;
   }
-  .chart-subtitle {
-    font-size: 10px;
-  }
+
   .legend-button {
     font-size: 9px;
   }
@@ -1352,9 +1350,6 @@ dialog[open] {
   .card-heading h2,
   .insights-grid .card-heading h2 {
     font-size: 14px;
-  }
-  .chart-subtitle {
-    font-size: 9px;
   }
   .term-card {
     padding: 14px 18px;
