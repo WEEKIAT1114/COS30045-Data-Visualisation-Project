@@ -90,7 +90,7 @@ export function renderCards(ids, expanded = false) {
               </button>
             </div>
           </div>
-          <p class="chart-subtitle">${CHARTS[id].subtitle}</p>
+          <p></p>
           <div id="chart-${id}" class="chart-host"></div>
           <div id="controls-${id}" class="chart-controls"></div>
         </figure>

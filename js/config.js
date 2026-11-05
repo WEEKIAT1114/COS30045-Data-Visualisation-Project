@@ -95,7 +95,7 @@ export const DEFAULT_FILTERS = {
 export const CHARTS = {
   annual: {
     title: 'Annual hospitalised injuries',
-    subtitle: '2011–2021 · selected year highlighted',
+    
     question: 'How has the recorded hospital burden changed?',
     info:
       'Counts use the selected remoteness, road user, sex, age and counterparty. ' +
@@ -105,7 +105,7 @@ export const CHARTS = {
   },
   age: {
     title: 'Hospitalised injuries by age group',
-    subtitle: 'Counts · chronological age order',
+    
     question: 'Which age groups account for the most admissions?',
     info:
       'Bars start at zero and use chronological age order. The age bands have ' +
@@ -114,7 +114,7 @@ export const CHARTS = {
   },
   remoteness: {
     title: 'Hospitalised injuries by remoteness',
-    subtitle: 'Patient residence · not crash location',
+    
     question: 'Where do the injured people usually live?',
     info:
       'Remoteness describes the patient’s usual residence. Regional combines ' +
@@ -124,7 +124,7 @@ export const CHARTS = {
   },
   distribution: {
     title: 'Hospitalised injuries by road user',
-    subtitle: 'Share of the matching hospitalisations',
+    
     question: 'How is the burden distributed across road users?',
     info:
       'Five named road-user categories are shown separately. Other road ' +
@@ -134,7 +134,7 @@ export const CHARTS = {
   },
   trends: {
     title: 'Road-user trends',
-    subtitle: 'Three largest matching groups · 2011–2021',
+    
     question: 'Do the leading road users follow the same pattern?',
     info:
       'The three largest road-user totals over the filtered full period are ' +
@@ -144,7 +144,7 @@ export const CHARTS = {
   },
   heatmap: {
     title: 'Age group and road user',
-    subtitle: 'Counts · page through every matching category',
+    
     question: 'How do age and road user combine?',
     info:
       'Cell colour and labels show hospitalisation counts. The colour scale uses ' +
@@ -154,7 +154,7 @@ export const CHARTS = {
   },
   counterparty: {
     title: 'Hospitalisations by counterparty',
-    subtitle: 'Rectangle area represents the count',
+    
     question: 'What vehicle or object was involved?',
     info:
       'A counterparty is the other vehicle, object or non-collision circumstance ' +
@@ -164,7 +164,7 @@ export const CHARTS = {
   },
   scatter: {
     title: 'Hospital burden by road user',
-    subtitle: 'Count vs bed days per hospitalisation',
+   
     question: 'Which road users combine volume with bed-day burden?',
     info:
       'Each point is one road-user category. Horizontal position shows ' +
@@ -175,7 +175,7 @@ export const CHARTS = {
   },
   bedAge: {
     title: 'Bed-day burden by age group',
-    subtitle: 'Reported bed days ÷ hospitalisations',
+    
     question: 'How does recorded bed-day burden vary by age?',
     info:
       'For each age group, divide total reported bed days by total ' +
