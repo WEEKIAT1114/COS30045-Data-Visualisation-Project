@@ -45,10 +45,13 @@ export function validateRows(rawRows) {
     if (row.record_type === 'national_detail') {
       if (row.bed_days === null) throw new Error('National bed days are missing.');
       for (const field of FILTERS.filter((item) => item.key !== 'year')) {
-        const values =
-          field.key === 'sex'
-            ? [...field.values, 'intersex or indeterminate or missing']
-            : field.values;
+        let values = field.values;
+        if (field.key === 'sex') {
+          values = [...field.values, 'intersex or indeterminate or missing'];
+        } else if (field.key === 'age_group') {
+          values = [...field.values, 'Missing']; 
+        }
+
         if (!values.includes(row[field.key]))
           throw new Error(`Unknown ${field.key}: ${row[field.key]}`);
       }

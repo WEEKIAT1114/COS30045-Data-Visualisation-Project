@@ -9,8 +9,7 @@ export const AGE_GROUPS = [
   '26-39',
   '40-64',
   '65-74',
-  '75+',
-  'Missing',
+  '75+'
 ];
 
 export const ROAD_USERS = [
@@ -95,99 +94,52 @@ export const DEFAULT_FILTERS = {
 export const CHARTS = {
   annual: {
     title: 'Annual hospitalised injuries',
-    
     question: 'How has the recorded hospital burden changed?',
-    info:
-      'Counts use the selected remoteness, road user, sex, age and counterparty. ' +
-      'The line retains 2011–2021 as context; the year filter highlights the ' +
-      'snapshot. Gaps mark changes to admission criteria in Victoria (2012) and ' +
-      'NSW (2017). Counts on either side are not directly comparable.',
+    info: 'Counts use the selected remoteness, road user, sex, age and counterparty. The line retains 2011–2021 as context; the year filter highlights the snapshot.',
   },
   age: {
     title: 'Hospitalised injuries by age group',
-    
     question: 'Which age groups account for the most admissions?',
-    info:
-      'Bars start at zero and use chronological age order. The age bands have ' +
-      'unequal spans and population sizes, so a larger count does not demonstrate ' +
-      'greater individual risk. Not-recorded age is retained when present.',
+    info: 'Bars start at zero and use chronological age order. The age bands have unequal spans and population sizes.',
   },
-  remoteness: {
-    title: 'Hospitalised injuries by remoteness',
-    
-    question: 'Where do the injured people usually live?',
-    info:
-      'Remoteness describes the patient’s usual residence. Regional combines ' +
-      'inner and outer regional areas; Remote combines remote and very remote ' +
-      'areas. Not-recorded residence remains in the totals. These are counts, not ' +
-      'population rates.',
+  stateMap: {
+    title: 'Hospitalised injuries by state/territory',
+    question: 'How are hospitalisations distributed across Australia?',
+    info: 'This map uses state_annual records. Demographic filters do not apply. Values show the total counts for the selected year snapshot.',
   },
   distribution: {
     title: 'Hospitalised injuries by road user',
-    
     question: 'How is the burden distributed across road users?',
-    info:
-      'Five named road-user categories are shown separately. Other road ' +
-      'users combines the remaining seven source categories; it is broader than ' +
-      'the source category “Other or unknown”. A selected road-user filter is ' +
-      'shown under its own name. Percentages use the complete filtered count.',
+    info: 'Five named road-user categories are shown separately. Percentages use the complete filtered count.',
   },
   trends: {
     title: 'Road-user trends',
-    
     question: 'Do the leading road users follow the same pattern?',
-    info:
-      'The three largest road-user totals over the filtered full period are ' +
-      'compared. Selecting a road user shows that one series. Colour is ' +
-      'reinforced with distinct point shapes and line patterns. Admission-policy ' +
-      'breaks are retained, and no smoothing is applied.',
+    info: 'The three largest road-user totals over the filtered full period are compared. Selecting a road user shows that one series.',
   },
   heatmap: {
     title: 'Age group and road user',
-    
     question: 'How do age and road user combine?',
-    info:
-      'Cell colour and labels show hospitalisation counts. The colour scale uses ' +
-      'the largest cell in the complete filtered snapshot, including cells on ' +
-      'other matrix pages. A dash means no source record; a recorded zero remains ' +
-      '0. Paging preserves readable labels and access to every row and column.',
+    info: 'Cell colour and labels show hospitalisation counts. The colour scale uses the largest cell in the complete filtered snapshot.',
   },
   counterparty: {
     title: 'Hospitalisations by counterparty',
-    
     question: 'What vehicle or object was involved?',
-    info:
-      'A counterparty is the other vehicle, object or non-collision circumstance ' +
-      'involved in the injury event. Each treemap area is proportional to the ' +
-      'filtered count. Small rectangles keep exact values in keyboard/pointer ' +
-      'tooltips and the data table; missing labels do not remove records.',
+    info: 'Each treemap area is proportional to the filtered count. Small rectangles keep exact values in keyboard/pointer tooltips.',
   },
   scatter: {
     title: 'Hospital burden by road user',
-   
     question: 'Which road users combine volume with bed-day burden?',
-    info:
-      'Each point is one road-user category. Horizontal position shows ' +
-      'hospitalisations; vertical position is reported bed days divided by ' +
-      'hospitalisations, calculated from summed totals. This is a source-total ' +
-      'burden ratio, not the mean length of stay of individual patients. A zero ' +
-      'denominator has no ratio.',
+    info: 'Horizontal position shows hospitalisations; vertical position is reported bed days divided by hospitalisations.',
   },
-  bedAge: {
-    title: 'Bed-day burden by age group',
-    
-    question: 'How does recorded bed-day burden vary by age?',
-    info:
-      'For each age group, divide total reported bed days by total ' +
-      'hospitalisations. Do not average row-level ratios. Bed days include ' +
-      'transferred-care episodes and the master retains bed days from cases ' +
-      'ending in death, while its hospitalisation count excludes in-hospital ' +
-      'deaths within 30 days. Interpret the result as a ratio of published ' +
-      'totals.',
+  firstNations: {
+    title: 'Hospitalisations by First Nations Status',
+    question: 'What are the trends for First Nations people?',
+    info: 'This chart uses first_nations_annual records from 2011-2021. Demographic filters do not apply.',
   },
 };
 
 export const PAGE_CHARTS = {
-  overview: ['annual', 'age', 'remoteness', 'distribution'],
-  insights: ['trends', 'heatmap', 'counterparty', 'scatter', 'bedAge'],
+  overview: ['annual', 'age', 'stateMap', 'distribution'],
+  insights: ['trends', 'heatmap', 'counterparty', 'scatter', 'firstNations'],
 };

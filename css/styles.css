@@ -516,7 +516,7 @@ main:focus {
 }
 .insights-grid .chart-counterparty,
 .insights-grid .chart-scatter,
-.insights-grid .chart-bedAge {
+.insights-grid .chart-firstNations {
   grid-column: span 2;
 }
 .insights-grid .card-heading h2 {
@@ -1214,6 +1214,10 @@ dialog[open] {
     padding: 7px 5px;
     font-size: 11px;
   }
+  /* Hide state labels on narrow screens to prevent overflow */
+  .state-label {
+    display: none;
+  }
 }
 
 @media (max-width: 500px) {
@@ -1390,8 +1394,8 @@ dialog[open] {
   gap: 7px;
   flex-shrink: 0;
 }
-.chart-remoteness .chart-controls,
-.chart-bedAge .chart-controls {
+.chart-stateMap .chart-controls,
+.chart-firstNations .chart-controls {
   display: flex;
   min-height: 23px;
   color: var(--muted);

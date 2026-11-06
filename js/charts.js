@@ -43,32 +43,11 @@ function lineAxes(plot, x, y, width, height) {
     )
     .select('.domain')
     .remove();
-
-  for (const year of [2011.5, 2016.5]) {
-    plot
-      .append('line')
-      .attr('class', 'policy-line')
-      .attr('x1', x(year))
-      .attr('x2', x(year))
-      .attr('y1', 0)
-      .attr('y2', height)
-      .attr('aria-hidden', 'true');
-    plot
-      .append('text')
-      .attr('class', 'policy-label')
-      .attr('x', x(year) + 4)
-      .attr('y', -8)
-      .text(`${Math.ceil(year)} change`)
-      .attr('aria-hidden', 'true');
-  }
 }
 
 function phases(values) {
-  return [
-    values.filter((item) => item.key === 2011),
-    values.filter((item) => item.key >= 2012 && item.key < 2017),
-    values.filter((item) => item.key >= 2017),
-  ];
+  // Return the entire dataset as a single continuous line segment, no gaps
+  return [values];
 }
 
 function roadColor(user) {
@@ -109,7 +88,7 @@ function drawAnnual(snapshot, history, filters, ui) {
     .attr('class', 'data-line')
     .attr('d', line)
     .attr('fill', 'none')
-    .attr('stroke', (_, index) => (index === 2 ? '#7178aa' : NAVY))
+    .attr('stroke', NAVY)
     .attr('stroke-width', 2.3);
 
   const points = plot
@@ -150,7 +129,8 @@ function drawAnnual(snapshot, history, filters, ui) {
 }
 
 function drawAge(snapshot, history, filters, ui) {
-  const values = groupRows(snapshot, 'age_group', AGE_GROUPS);
+  // Filter out the 'Missing' age category so it does not render as a bar
+  const values = groupRows(snapshot, 'age_group', AGE_GROUPS).filter(item => item.key !== 'Missing');
   const table = {
     headers: ['Age group', 'Hospitalisations'],
     rows: values.map((item) => [label(item.key), item.count]),
@@ -197,7 +177,7 @@ function drawAge(snapshot, history, filters, ui) {
     .call(
       d3
         .axisBottom(x)
-        .tickFormat((value) => (value === 'Missing' ? 'Unknown' : label(value)))
+        .tickFormat((value) => label(value))
         .tickSize(0)
         .tickPadding(8),
     );
@@ -229,133 +209,6 @@ function drawAge(snapshot, history, filters, ui) {
       .attr('y', (item) => y(item.count) - 6)
       .attr('text-anchor', 'middle')
       .text((item) => formatNumber(item.count));
-  return table;
-}
-
-function drawHorizontal(id, values, metric, field, ui) {
-  const rows = values.map((item) => [
-    label(item.key),
-    metric === 'count' ? item.count : formatRatio(item.ratio),
-  ]);
-  const table = {
-    headers: [
-      field === 'remoteness' ? 'Remoteness' : 'Age group',
-      metric === 'count' ? 'Hospitalisations' : 'Bed days / hospitalisation',
-    ],
-    rows,
-  };
-  if (!values.length) {
-    emptyChart(id);
-    return table;
-  }
-  const available = values.filter((item) => item[metric] !== null);
-  if (!available.length) {
-    emptyChart(
-      id,
-      'Bed-day ratios are unavailable because the matching hospitalisation total is zero.',
-    );
-    return table;
-  }
-
-  const left = field === 'remoteness' ? 91 : 58;
-  const {
-    plot,
-    innerWidth: width,
-    innerHeight: height,
-  } = frame(id, { top: 6, right: 46, bottom: 24, left });
-  const perPage = Math.max(1, Math.floor(height / 19));
-  const pages = Math.ceil(values.length / perPage);
-  ui.barPage = Math.min(ui.barPage, pages - 1);
-  const visible = values.slice(ui.barPage * perPage, (ui.barPage + 1) * perPage);
-  const visibleValues = visible.filter((item) => item[metric] !== null);
-  const y = d3
-    .scaleBand()
-    .domain(visible.map((item) => item.key))
-    .range([0, height])
-    .padding(0.24);
-  const x = d3
-    .scaleLinear()
-    .domain([0, Math.max(1, d3.max(available, (item) => item[metric]) * 1.08)])
-    .nice()
-    .range([0, width]);
-  plot
-    .append('g')
-    .attr('class', 'grid')
-    .attr('aria-hidden', 'true')
-    .attr('transform', `translate(0,${height})`)
-    .call(d3.axisBottom(x).ticks(3).tickSize(-height).tickFormat(''));
-  plot
-    .append('g')
-    .attr('class', 'axis')
-    .attr('aria-hidden', 'true')
-    .call(
-      d3
-        .axisLeft(y)
-        .tickFormat((value) => (value === 'Missing' ? 'Not recorded' : label(value)))
-        .tickSize(0)
-        .tickPadding(8),
-    )
-    .select('.domain')
-    .remove();
-  plot
-    .append('g')
-    .attr('class', 'axis')
-    .attr('aria-hidden', 'true')
-    .attr('transform', `translate(0,${height})`)
-    .call(
-      d3
-        .axisBottom(x)
-        .ticks(3)
-        .tickSizeOuter(0)
-        .tickFormat(metric === 'count' ? d3.format('~s') : d3.format('~g')),
-    );
-  const bars = plot
-    .selectAll('rect.horizontal-bar')
-    .data(visibleValues)
-    .join('rect')
-    .attr('class', 'horizontal-bar')
-    .attr('x', 0)
-    .attr('y', (item) => y(item.key))
-    .attr('height', y.bandwidth())
-    .attr('width', (item) => x(item[metric]))
-    .attr('fill', (item) =>
-      metric === 'ratio'
-        ? LAVENDER
-        : [NAVY, LAVENDER, '#dfc7ba', '#a1a6b2'][values.indexOf(item) % 4],
-    )
-    .attr('stroke', NAVY)
-    .attr('stroke-width', 0.8);
-  interactive(
-    bars,
-    (item) =>
-      `${label(item.key)}: ${metric === 'count' ? formatNumber(item.count) + ' hospitalisations' : formatRatio(item.ratio) + ' bed days per hospitalisation'}. Select this group.`,
-    (item) => ui.select(field, item.key),
-  );
-  plot
-    .selectAll('text.bar-value')
-    .data(visibleValues)
-    .join('text')
-    .attr('class', 'value-label')
-    .attr('x', (item) => x(item[metric]) + 6)
-    .attr('y', (item) => y(item.key) + y.bandwidth() / 2)
-    .attr('dominant-baseline', 'middle')
-    .text((item) =>
-      metric === 'count' ? formatNumber(item.count) : formatRatio(item.ratio),
-    );
-  const controls = document.querySelector(`#controls-${id}`);
-  controls.innerHTML = `<span>Groups ${ui.barPage * perPage + 1}–${Math.min(values.length, (ui.barPage + 1) * perPage)} of ${values.length}</span>
-    <span class="mini-pager"><button id="bar-prev-${id}" aria-label="Previous ${field === 'remoteness' ? 'remoteness' : 'age'} groups">‹</button>
-    <span>${ui.barPage + 1}/${pages}</span><button id="bar-next-${id}" aria-label="Next ${field === 'remoteness' ? 'remoteness' : 'age'} groups">›</button></span>`;
-  controls.querySelector(`#bar-prev-${id}`).disabled = ui.barPage === 0;
-  controls.querySelector(`#bar-next-${id}`).disabled = ui.barPage === pages - 1;
-  controls.querySelector(`#bar-prev-${id}`).onclick = () => {
-    ui.barPage--;
-    ui.redraw();
-  };
-  controls.querySelector(`#bar-next-${id}`).onclick = () => {
-    ui.barPage++;
-    ui.redraw();
-  };
   return table;
 }
 
@@ -449,17 +302,8 @@ function drawDistribution(snapshot, history, filters, ui) {
     .append('text')
     .attr('class', 'legend-label')
     .attr('x', 15)
-    .attr('y', rowHeight / 2 - 2)
+    .attr('y', rowHeight / 2 + 4)
     .text((item) => item.key);
-  items
-    .append('text')
-    .attr('class', 'legend-value')
-    .attr('x', 15)
-    .attr('y', rowHeight / 2 + 10)
-    .text(
-      (item) =>
-        `${((item.count / total) * 100).toFixed(1)}% · ${formatNumber(item.count)}`,
-    );
   return table;
 }
 
@@ -869,33 +713,267 @@ function drawScatter(snapshot, history, filters, ui) {
   return table;
 }
 
-export function renderChart(id, snapshot, history, filters, ui) {
+const stateLabels = {
+  nsw: "New South Wales",
+  vic: "Victoria",
+  qld: "Queensland",
+  sa: "South Australia",
+  wa: "Western Australia",
+  tas: "Tasmania",
+  nt: "Northern Territory",
+  act: "Australian Capital Territory",
+  unknown: "Unknown"
+};
+
+// Map abbreviations for rendering on the map
+const stateShortLabels = {
+  nsw: "NSW",
+  vic: "VIC",
+  qld: "QLD",
+  sa: "SA",
+  wa: "WA",
+  tas: "TAS",
+  nt: "NT",
+  act: "ACT",
+  unknown: ""
+};
+
+// Normalize states to match between the CSV dataset and the GeoJSON properties
+function normalizeState(name) {
+  if (!name) return "unknown";
+  const n = String(name).toLowerCase().trim();
+  if (n === 'nsw' || n.includes('new south wales')) return 'nsw';
+  if (n === 'vic' || n.includes('victoria')) return 'vic';
+  if (n === 'qld' || n.includes('queensland')) return 'qld';
+  if (n === 'sa' || n.includes('south australia')) return 'sa';
+  if (n === 'wa' || n.includes('western australia')) return 'wa';
+  if (n === 'tas' || n.includes('tasmania')) return 'tas';
+  if (n === 'nt' || n.includes('northern territory')) return 'nt';
+  if (n === 'act' || n.includes('australian capital territory')) return 'act';
+  return n;
+}
+
+function drawStateMap(snapshot, history, filters, ui, sourceRows, geoData) {
+  let stateData = sourceRows.filter((d) => d.record_type === 'state_annual');
+  if (filters.year !== 'All') {
+    stateData = stateData.filter((d) => String(d.year) === filters.year);
+  }
+  const rolled = d3.rollup(
+    stateData,
+    (v) => d3.sum(v, (d) => d.hospitalisations),
+    (d) => normalizeState(d.state)
+  );
+
+  const table = {
+    headers: ['State', 'Hospitalisations'],
+    rows: Array.from(rolled, ([state, count]) => [stateLabels[state] || state, count]).sort((a, b) => b[1] - a[1]),
+  };
+
+  if (!geoData || rolled.size === 0) {
+    emptyChart('stateMap', 'No state data available for this selection or map data failed to load.');
+    return table;
+  }
+
+  // Remove top/bottom margins to allow the map to stretch better
+  const { plot, svg, innerWidth: width, innerHeight: height } = frame('stateMap', { top: 0, right: 10, bottom: 0, left: 10 });
+  
+  // Add a light blue background rectangle for the "ocean"
+  plot.insert("rect", ":first-child")
+      .attr("width", width)
+      .attr("height", height)
+      .attr("fill", "#e0f2fe")
+      .attr("rx", 6);
+
+  const projection = d3.geoMercator().fitExtent([[10, 10], [width - 10, height - 10]], geoData);
+  const path = d3.geoPath().projection(projection);
+  
+  const maxVal = d3.max(Array.from(rolled.values())) || 0;
+  
+  // Custom color scale matching KNIME reference
+  const colorScale = d3.scaleQuantize()
+    .domain([0, maxVal])
+    .range(['#440154', '#3b528b', '#21918c', '#5ec962', '#fde725']);
+
+  const paths = plot.selectAll("path.state")
+    .data(geoData.features)
+    .join("path")
+    .attr("class", "state")
+    .attr("d", path)
+    .attr("fill", (d) => {
+      const stateKey = normalizeState(d.properties.STATE_NAME || d.properties.name);
+      const count = rolled.get(stateKey) || 0;
+      return count === 0 ? '#f4f1f4' : colorScale(count);
+    })
+    .attr("stroke", "#ffffff")
+    .attr("stroke-width", 1);
+
+  const isExpanded = document.body.dataset.page === 'detail';
+
+  // Add short state labels onto the map polygons (only shown when expanded)
+  plot.selectAll("text.state-label")
+    .data(geoData.features)
+    .join("text")
+    .attr("class", "state-label")
+    .attr("transform", d => {
+      let centroid = path.centroid(d);
+      if (d.properties.STATE_NAME === "Tasmania") { centroid[1] += 5; }
+      return `translate(${centroid})`;
+    })
+    .attr("text-anchor", "middle")
+    .attr("dy", ".35em")
+    .style("font-size", "11px")
+    .style("font-family", "'Segoe UI', sans-serif")
+    .style("font-weight", "400")
+    .style("pointer-events", "none")
+    .style("fill", "#ffffff")
+    .text(d => {
+      // Hide labels on the small overview card, show only on expanded view
+      if (!isExpanded) return ""; 
+      const stateKey = normalizeState(d.properties.STATE_NAME || d.properties.name);
+      return stateShortLabels[stateKey] || "";
+    });
+
+  // Dynamic legend sizing based on window width (increased width to prevent text overflow)
+  const legendWidth = isExpanded ? Math.min(210, width * 0.45) : Math.min(100, width * 0.4); 
+  const legendHeight = isExpanded ? 90 : 60;
+  
+  const legend = plot.append("g")
+      .attr("class", "map-legend")
+      .attr("transform", `translate(${width - legendWidth - 10}, ${height - legendHeight - 10})`);
+      
+  // Add a white background box for the legend
+  legend.append("rect")
+      .attr("width", legendWidth)
+      .attr("height", legendHeight)
+      .attr("fill", "#ffffff")
+      .attr("rx", 4)
+      .attr("stroke", "#e9e8ef");
+
+  legend.append("text")
+      .attr("x", 8)
+      .attr("y", isExpanded ? 18 : 12)
+      .style("font-size", isExpanded ? "11px" : "8px")
+      .style("font-weight", "bold")
+      .text("Hospitalisations");
+
+  // Create discrete legend items based on the quantize scale
+  const thresholds = colorScale.thresholds();
+  const domain = colorScale.domain();
+  const ranges = [domain[0], ...thresholds, domain[1]];
+  const colors = colorScale.range();
+
+  const itemHeight = isExpanded ? 13 : 8;
+  const legendItems = legend.selectAll(".legend-item")
+      .data(colors)
+      .join("g")
+      .attr("transform", (d, i) => `translate(8, ${isExpanded ? 26 + i * itemHeight : 18 + i * itemHeight})`);
+
+  legendItems.append("rect")
+      .attr("width", isExpanded ? 9 : 6)
+      .attr("height", isExpanded ? 9 : 6)
+      .attr("fill", d => d);
+
+  legendItems.append("text")
+      .attr("x", isExpanded ? 16 : 10)
+      .attr("y", isExpanded ? 8 : 5)
+      .style("font-size", isExpanded ? "10px" : "7px")
+      .style("fill", "var(--muted)")
+      .text((d, i) => `${formatNumber(ranges[i])} - ${formatNumber(ranges[i+1])}`);
+
+  const displayYear = filters.year === 'All' ? '2011–2021' : filters.year;
+
+  interactive(
+    paths,
+    (d) => {
+      const stateKey = normalizeState(d.properties.STATE_NAME || d.properties.name);
+      const count = rolled.get(stateKey) || 0;
+      return `State: ${stateLabels[stateKey] || stateKey}\nHospitalisations: ${formatNumber(count)}\nYear: ${displayYear}`;
+    }
+  );
+
+  return table;
+}
+
+function drawFirstNations(snapshot, history, filters, ui, sourceRows) {
+  let fnData = sourceRows.filter((d) => d.record_type === 'first_nations_annual');
+  const yearMap = new Map(d3.range(2011, 2022).map(y => [y, { year: y, first_nations: 0, non_indigenous: 0, not_stated: 0 }]));
+  
+  fnData.forEach(d => {
+     const entry = yearMap.get(d.year);
+     const status = String(d.indigenous_status || '').toLowerCase();
+     let mappedStatus = 'not_stated';
+     
+     // Classify the indigenous status from the CSV
+     if (status.includes('first') || (status.includes('indigenous') && !status.includes('non'))) {
+         mappedStatus = 'first_nations';
+     } else if (status.includes('non')) {
+         mappedStatus = 'non_indigenous';
+     }
+     
+     if (entry) {
+         entry[mappedStatus] += (d.hospitalisations || 0);
+     }
+  });
+  
+  const data = Array.from(yearMap.values());
+  const table = {
+    headers: ['Year', 'First Nations', 'Non-Indigenous', 'Not Stated'],
+    rows: data.map(d => [d.year, d.first_nations, d.non_indigenous, d.not_stated])
+  };
+
+  if (fnData.length === 0) {
+    emptyChart('firstNations', 'No First Nations data available.');
+    return table;
+  }
+
+  const { plot, innerWidth: width, innerHeight: height } = frame('firstNations', { top: 20, right: 15, bottom: 25, left: 45 });
+  const keys = ["first_nations", "non_indigenous", "not_stated"];
+  const colors = [NAVY, LAVENDER, '#dfc7ba'];
+  const labels = ["First Nations", "Non-Indigenous", "Not Stated"];
+
+  const stack = d3.stack().keys(keys);
+  const series = stack(data);
+
+  const x = d3.scaleLinear().domain([2011, 2021]).range([0, width]);
+  const maxVal = d3.max(series, d => d3.max(d, d => d[1]));
+  const y = d3.scaleLinear().domain([0, Math.max(10, maxVal * 1.15)]).nice().range([height, 0]);
+
+  lineAxes(plot, x, y, width, height);
+
+  const area = d3.area()
+    .x(d => x(d.data.year))
+    .y0(d => y(d[0]))
+    .y1(d => y(d[1]));
+
+  const paths = plot.selectAll(".layer")
+    .data(series)
+    .join("path")
+    .attr("class", "layer")
+    .attr("fill", (d, i) => colors[i])
+    .attr("d", area)
+    .attr("opacity", 0.9);
+
+  interactive(
+    paths,
+    (d) => `${labels[keys.indexOf(d.key)]} area. Total counts over 2011-2021.`
+  );
+
+  const controls = document.querySelector('#controls-firstNations');
+  if (controls) {
+    controls.innerHTML = keys.map((k, i) => `<span style="margin-right:12px; font-size:10px; display:inline-flex; align-items:center;"><span style="display:inline-block; width:10px; height:10px; background:${colors[i]}; margin-right:4px; border-radius:2px;"></span>${labels[i]}</span>`).join('');
+  }
+
+  return table;
+}
+
+export function renderChart(id, snapshot, history, filters, ui, sourceRows, geoState) {
   if (id === 'annual') return drawAnnual(snapshot, history, filters, ui);
   if (id === 'age') return drawAge(snapshot, history, filters, ui);
-  if (id === 'remoteness')
-    return drawHorizontal(
-      id,
-      groupRows(snapshot, 'remoteness', [
-        'Major Cities',
-        'Regional',
-        'Remote',
-        'Missing',
-      ]),
-      'count',
-      'remoteness',
-      ui,
-    );
+  if (id === 'stateMap') return drawStateMap(snapshot, history, filters, ui, sourceRows, geoState);
   if (id === 'distribution') return drawDistribution(snapshot, history, filters, ui);
   if (id === 'trends') return drawTrends(snapshot, history, filters, ui);
   if (id === 'heatmap') return drawHeatmap(snapshot, history, filters, ui);
   if (id === 'counterparty') return drawCounterparty(snapshot, history, filters, ui);
   if (id === 'scatter') return drawScatter(snapshot, history, filters, ui);
-  if (id === 'bedAge')
-    return drawHorizontal(
-      id,
-      groupRows(snapshot, 'age_group', AGE_GROUPS),
-      'ratio',
-      'age_group',
-      ui,
-    );
+  if (id === 'firstNations') return drawFirstNations(snapshot, history, filters, ui, sourceRows);
 }

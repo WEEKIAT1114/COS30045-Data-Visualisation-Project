@@ -17,6 +17,7 @@ import { TERMS } from './glossary.js';
 const page = document.body.dataset.page;
 const filters = readFilters();
 let sourceRows = [];
+let geoData = null;
 let activeChart = 0;
 let glossaryPage = 0;
 let detailPage = 0;
@@ -271,7 +272,7 @@ function redraw() {
   // Otherwise old visible cards can briefly consume the phone layout's height.
   chartIds.forEach((id, index) => {
     if (!compact || index === activeChart) {
-      tables.set(id, renderChart(id, snapshot, history, filters, chartUI));
+      tables.set(id, renderChart(id, snapshot, history, filters, chartUI, sourceRows, geoData));
     }
   });
   updateNavigation();
@@ -451,6 +452,9 @@ if (page === 'glossary') {
   try {
     const rawRows = await d3.csv('data/road_crash_master.csv');
     sourceRows = validateRows(rawRows);
+    
+    geoData = await d3.json('https://raw.githubusercontent.com/rowanhogan/australian-states/master/states.geojson');
+    
     document.querySelector('#load-status').hidden = true;
     redraw();
   } catch (error) {
