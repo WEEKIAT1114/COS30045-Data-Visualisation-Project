@@ -50,6 +50,10 @@ export function validateRows(rawRows) {
           values = [...field.values, 'intersex or indeterminate or missing'];
         } else if (field.key === 'age_group') {
           values = [...field.values, 'Missing']; 
+        } else if (field.key === 'road_user') {
+          values = [...field.values, 'Other or unknown'];
+        } else if (field.key === 'remoteness') {
+          values = [...field.values, 'Missing'];
         }
 
         if (!values.includes(row[field.key]))

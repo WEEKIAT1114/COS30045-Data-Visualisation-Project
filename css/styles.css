@@ -1,13 +1,13 @@
-/* GenAI-assisted design based on the user's three reference screens. */
+/* GenAI-assisted design based on the user's reference screens and NHS Design System. */
 :root {
-  --sand: #dfc7ba;
-  --lavender: #9298c6;
-  --blue: #37507e;
-  --ink: #161c2e;
+  --sand: #CCDFF1;
+  --lavender: #005EB8;
+  --blue: #003087;
+  --ink: #212B32;
   --muted: #535e76;
-  --paper: #f3f3f8;
+  --paper: #F0F4F5;
   --line: #dedee9;
-  --focus: #37507e;
+  --focus: #005EB8;
   color-scheme: light;
 }
 
@@ -108,7 +108,7 @@ body[data-page='glossary'] #app {
   justify-content: space-between;
   gap: 24px;
   padding: 14px 30px;
-  background: linear-gradient(110deg, #232b43, var(--ink));
+  background: linear-gradient(110deg, #003087, #212B32); /* NHS Dark Blue to NHS Text Color */
   color: #fff;
   isolation: isolate;
 }
@@ -319,10 +319,10 @@ main:focus {
   justify-content: center;
 }
 .primary-metric {
-  background: linear-gradient(130deg, #37507e, #273958);
+  background: linear-gradient(130deg, #003087, #005EB8); /* NHS Dark Blue to Primary Blue */
 }
 .secondary-metric {
-  background: linear-gradient(130deg, #626b99, #62658f);
+  background: linear-gradient(130deg, #535e76, #7a87a1); /* Keeping a neutral cool grey for secondary */
 }
 .metric-card::after {
   content: '';
@@ -374,12 +374,6 @@ main:focus {
 .metric-card > p {
   font-size: 10px;
   margin-top: 8px;
-}
-.summary-insight {
-  color: var(--muted);
-  font-size: 10px;
-  line-height: 1.6;
-  padding-inline: 3px;
 }
 .charts-area {
   min-height: 0;
@@ -696,13 +690,6 @@ body[data-page='glossary'] main {
   color: var(--muted);
   font-size: 12px;
 }
-.eyebrow {
-  text-transform: uppercase;
-  color: var(--blue);
-  letter-spacing: 1px;
-  font-size: 9px;
-  font-weight: 700;
-}
 .glossary-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -731,9 +718,6 @@ body[data-page='glossary'] main {
   border-radius: 17px;
   position: relative;
   overflow: hidden;
-}
-.term-card:nth-child(even) .term-icon {
-  background: linear-gradient(145deg, #666d9d, #6b6c94);
 }
 .term-icon::after {
   content: '';
@@ -1088,9 +1072,7 @@ dialog[open] {
     line-height: 1.2;
   }
   .metric-icon,
-  .metric-card > p,
-  .summary-insight,
-  .insights .summary-insight {
+  .metric-card > p {
     display: none;
   }
   .metric-period,
@@ -1213,10 +1195,6 @@ dialog[open] {
   #details-data td {
     padding: 7px 5px;
     font-size: 11px;
-  }
-  /* Hide state labels on narrow screens to prevent overflow */
-  .state-label {
-    display: none;
   }
 }
 
@@ -1463,4 +1441,10 @@ dialog[open] {
   .dashboard-shell.insights {
     grid-template-rows: 69px minmax(0, 1fr);
   }
+}
+.state-label {
+  display: none;
+}
+.detail .state-label {
+  display: block;
 }

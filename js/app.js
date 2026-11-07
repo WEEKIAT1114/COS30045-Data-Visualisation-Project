@@ -126,7 +126,7 @@ function buildDashboard() {
   document.querySelector('#main').innerHTML = /* HTML */ `
     <div class="page-context">
       <div>
-        <h1>
+        <h1 style="font-size: 26px;">
           ${page === 'detail'
             ? CHARTS[detailId].question
             : page === 'overview'
@@ -134,10 +134,6 @@ function buildDashboard() {
               : 'Explore the hospital burden'}
           <span id="context-count"></span>
         </h1>
-        <p>
-          Year sets snapshots; trend lines retain 2011–2021. Other filters apply to
-          every chart.
-        </p>
       </div>
       <div class="page-actions">
         ${page === 'detail'
@@ -181,7 +177,6 @@ function buildDashboard() {
           <strong id="bed-ratio">—</strong>
           <p id="bed-total"></p>
         </article>
-        <p class="summary-insight" id="summary-insight" aria-live="polite"></p>
       </aside>
       <section
         class="charts-area"
@@ -231,10 +226,14 @@ function redraw() {
   const history = filterNational(sourceRows, filters, false);
   const summary = totals(snapshot);
   const period = filters.year === 'All' ? '2011–2021' : filters.year;
-  document.querySelector('#context-count').textContent =
-    page === 'overview'
-      ? ''
-      : `${period} · ${formatNumber(summary.count)} hospitalisations`;
+  
+  const contextSpan = document.querySelector('#context-count');
+  if (contextSpan) {
+    contextSpan.textContent =
+      page === 'overview'
+        ? ''
+        : `${period} · ${formatNumber(summary.count)} hospitalisations`;
+  }
 
   document.querySelector('#total-count').textContent = formatNumber(summary.count);
   document.querySelector('#bed-ratio').textContent = formatRatio(summary.ratio);
@@ -246,11 +245,6 @@ function redraw() {
   document.querySelectorAll('.metric-period').forEach((node) => {
     node.textContent = period;
   });
-  const largest = groupRows(snapshot, 'age_group').sort((a, b) => b.count - a.count)[0];
-  document.querySelector('#summary-insight').textContent =
-    largest && summary.count > 0
-      ? `${label(largest.key)} accounts for ${((largest.count / summary.count) * 100).toFixed(1)}% of the matching hospitalisations. Counts describe burden, not individual risk.`
-      : 'No hospitalisations match this selection. Try another filter or reset all.';
 
   const compact = innerWidth <= 900;
   activeChart = Math.max(0, Math.min(chartIds.length - 1, activeChart));
@@ -284,10 +278,8 @@ function buildGlossary() {
     <section class="glossary-screen">
       <div class="glossary-heading">
         <div>
-          <p class="eyebrow">Understand the data</p>
-          <h1>Glossary & source notes</h1>
+          <h1 style="font-size: 26px;">Glossary & source notes</h1>
         </div>
-        <p>Definitions, calculations and important limits behind the charts.</p>
       </div>
       <div class="glossary-grid"></div>
       <div class="glossary-pager">

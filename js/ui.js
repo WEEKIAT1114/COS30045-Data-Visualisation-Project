@@ -41,9 +41,9 @@ export function renderHeader(page) {
       preserveAspectRatio="none"
       aria-hidden="true"
     >
-      <path d="M0 130C170 130 200 20 390 0H850V130Z" fill="#dfc7ba" />
-      <path d="M40 130C210 130 245 0 450 0H850V130Z" fill="#9298c6" />
-      <path d="M320 130C460 80 530 15 640 0H850V130Z" fill="#37507e" opacity=".45" />
+      <path d="M0 130C170 130 200 20 390 0H850V130Z" fill="#CCDFF1" opacity=".15" />
+      <path d="M40 130C210 130 245 0 450 0H850V130Z" fill="#005EB8" opacity=".25" />
+      <path d="M320 130C460 80 530 15 640 0H850V130Z" fill="#003087" opacity=".45" />
     </svg>
     <a class="brand" href="index.html" aria-label="Road crash dashboard overview">
       <svg class="brand-mark" viewBox="0 0 60 60" aria-hidden="true">

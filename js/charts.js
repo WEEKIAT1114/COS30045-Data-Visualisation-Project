@@ -11,9 +11,10 @@ import {
 import { totals, groupRows, annualData, distributionData, matrixData } from './data.js';
 import { frame, emptyChart, interactive, contrastText } from './ui.js';
 
-const NAVY = '#37507e';
-const LAVENDER = '#9298c6';
-const trendColors = [NAVY, '#76648c', '#9b654a'];
+// Clinical Calm Blue & Cool Grey Palette (NHS Design System)
+const NAVY = '#003087';
+const LAVENDER = '#005EB8';
+const trendColors = [NAVY, '#4C9EEB', '#212B32'];
 
 function lineAxes(plot, x, y, width, height) {
   plot
@@ -448,7 +449,7 @@ function drawHeatmap(snapshot, history, filters, ui) {
   const visibleAges = ages.slice(rowPage * rowsPerPage, (rowPage + 1) * rowsPerPage);
   const max = d3.max(values, (item) => item.count) || 0;
   const color = d3
-    .scaleSequential(d3.piecewise(d3.interpolateRgb, ['#f1f0f8', LAVENDER, NAVY]))
+    .scaleSequential(d3.piecewise(d3.interpolateRgb, ['#F1F5F9', LAVENDER, NAVY]))
     .domain([0, max || 1]);
   const x = d3.scaleBand().domain(visibleUsers).range([0, width]).padding(0.025);
   const y = d3.scaleBand().domain(visibleAges).range([0, height]).padding(0.04);
@@ -459,8 +460,8 @@ function drawHeatmap(snapshot, history, filters, ui) {
     .attr('width', 6)
     .attr('height', 6)
     .attr('patternUnits', 'userSpaceOnUse');
-  pattern.append('rect').attr('width', 6).attr('height', 6).attr('fill', '#f4f1f4');
-  pattern.append('path').attr('d', 'M0 6L6 0').attr('stroke', '#c2becb');
+  pattern.append('rect').attr('width', 6).attr('height', 6).attr('fill', '#F8FAFC');
+  pattern.append('path').attr('d', 'M0 6L6 0').attr('stroke', '#E2E8F0');
 
   visibleUsers.forEach((user) => {
     const words = shortRoad[user];
@@ -777,11 +778,11 @@ function drawStateMap(snapshot, history, filters, ui, sourceRows, geoData) {
   // Remove top/bottom margins to allow the map to stretch better
   const { plot, svg, innerWidth: width, innerHeight: height } = frame('stateMap', { top: 0, right: 10, bottom: 0, left: 10 });
   
-  // Add a light blue background rectangle for the "ocean"
+  // Add a light calm grey-blue background rectangle for the "ocean"
   plot.insert("rect", ":first-child")
       .attr("width", width)
       .attr("height", height)
-      .attr("fill", "#e0f2fe")
+      .attr("fill", "#F1F5F9") // Calm ocean background
       .attr("rx", 6);
 
   const projection = d3.geoMercator().fitExtent([[10, 10], [width - 10, height - 10]], geoData);
@@ -789,10 +790,10 @@ function drawStateMap(snapshot, history, filters, ui, sourceRows, geoData) {
   
   const maxVal = d3.max(Array.from(rolled.values())) || 0;
   
-  // Custom color scale matching KNIME reference
+  // Clinical calm blue color scale
   const colorScale = d3.scaleQuantize()
     .domain([0, maxVal])
-    .range(['#440154', '#3b528b', '#21918c', '#5ec962', '#fde725']);
+    .range(['#F8FAFC', '#DBEAFE', '#93C5FD', '#60A5FA', '#3B82F6', '#1D4ED8']);
 
   const paths = plot.selectAll("path.state")
     .data(geoData.features)
@@ -802,12 +803,12 @@ function drawStateMap(snapshot, history, filters, ui, sourceRows, geoData) {
     .attr("fill", (d) => {
       const stateKey = normalizeState(d.properties.STATE_NAME || d.properties.name);
       const count = rolled.get(stateKey) || 0;
-      return count === 0 ? '#f4f1f4' : colorScale(count);
+      return count === 0 ? '#F1F5F9' : colorScale(count);
     })
-    .attr("stroke", "#ffffff")
+    .attr("stroke", "#1E293B") // Dark outline for clear borders
     .attr("stroke-width", 1);
 
-  const isExpanded = document.body.dataset.page === 'detail';
+  const isExpanded = document.querySelector('.dashboard-shell.detail') !== null || window.location.href.includes('chart.html') || width > 600;
 
   // Add short state labels onto the map polygons (only shown when expanded)
   plot.selectAll("text.state-label")
@@ -823,62 +824,66 @@ function drawStateMap(snapshot, history, filters, ui, sourceRows, geoData) {
     .attr("dy", ".35em")
     .style("font-size", "11px")
     .style("font-family", "'Segoe UI', sans-serif")
-    .style("font-weight", "400")
+    .style("font-weight", "600")
     .style("pointer-events", "none")
-    .style("fill", "#ffffff")
+    .style("fill", "#0F172A") // Dark text
+    .style("stroke", "#ffffff") // White stroke halo for high contrast
+    .style("stroke-width", "2.5px")
+    .style("paint-order", "stroke fill")
     .text(d => {
-      // Hide labels on the small overview card, show only on expanded view
       if (!isExpanded) return ""; 
       const stateKey = normalizeState(d.properties.STATE_NAME || d.properties.name);
       return stateShortLabels[stateKey] || "";
     });
 
-  // Dynamic legend sizing based on window width (increased width to prevent text overflow)
-  const legendWidth = isExpanded ? Math.min(210, width * 0.45) : Math.min(100, width * 0.4); 
-  const legendHeight = isExpanded ? 90 : 60;
+  const legendWidth = isExpanded ? 185 : 155; 
+  const legendHeight = isExpanded ? 135 : 95; 
   
   const legend = plot.append("g")
       .attr("class", "map-legend")
-      .attr("transform", `translate(${width - legendWidth - 10}, ${height - legendHeight - 10})`);
+      .attr("transform", `translate(${width - legendWidth - (isExpanded ? 15 : 10)}, ${height - legendHeight - (isExpanded ? 15 : 10)})`);
       
-  // Add a white background box for the legend
   legend.append("rect")
       .attr("width", legendWidth)
       .attr("height", legendHeight)
       .attr("fill", "#ffffff")
-      .attr("rx", 4)
-      .attr("stroke", "#e9e8ef");
+      .attr("rx", 6)
+      .attr("stroke", "#e9e8ef")
+      .attr("stroke-width", 1.5);
 
   legend.append("text")
-      .attr("x", 8)
-      .attr("y", isExpanded ? 18 : 12)
-      .style("font-size", isExpanded ? "11px" : "8px")
+      .attr("x", 15) 
+      .attr("y", isExpanded ? 24 : 16) 
+      .style("font-size", isExpanded ? "12px" : "10px")
       .style("font-weight", "bold")
+      .style("fill", NAVY)
       .text("Hospitalisations");
 
-  // Create discrete legend items based on the quantize scale
   const thresholds = colorScale.thresholds();
   const domain = colorScale.domain();
   const ranges = [domain[0], ...thresholds, domain[1]];
   const colors = colorScale.range();
 
-  const itemHeight = isExpanded ? 13 : 8;
+  const itemHeight = isExpanded ? 16 : 11;
   const legendItems = legend.selectAll(".legend-item")
       .data(colors)
       .join("g")
-      .attr("transform", (d, i) => `translate(8, ${isExpanded ? 26 + i * itemHeight : 18 + i * itemHeight})`);
+      .attr("transform", (d, i) => `translate(0, ${isExpanded ? 38 + i * itemHeight : 26 + i * itemHeight})`);
 
   legendItems.append("rect")
-      .attr("width", isExpanded ? 9 : 6)
-      .attr("height", isExpanded ? 9 : 6)
-      .attr("fill", d => d);
+      .attr("x", 15)
+      .attr("width", isExpanded ? 12 : 9)
+      .attr("height", isExpanded ? 12 : 9)
+      .attr("fill", d => d)
+      .attr("rx", 2);
 
   legendItems.append("text")
-      .attr("x", isExpanded ? 16 : 10)
-      .attr("y", isExpanded ? 8 : 5)
-      .style("font-size", isExpanded ? "10px" : "7px")
+      .attr("x", isExpanded ? 33 : 29)
+      .attr("y", isExpanded ? 10 : 8)
+      .attr("text-anchor", "start")
+      .style("font-size", isExpanded ? "11px" : "9.5px")
       .style("fill", "var(--muted)")
-      .text((d, i) => `${formatNumber(ranges[i])} - ${formatNumber(ranges[i+1])}`);
+      .text((d, i) => `${formatNumber(Math.round(ranges[i]))} - ${formatNumber(Math.round(ranges[i+1]))}`);
 
   const displayYear = filters.year === 'All' ? '2011–2021' : filters.year;
 
@@ -928,7 +933,7 @@ function drawFirstNations(snapshot, history, filters, ui, sourceRows) {
 
   const { plot, innerWidth: width, innerHeight: height } = frame('firstNations', { top: 20, right: 15, bottom: 25, left: 45 });
   const keys = ["first_nations", "non_indigenous", "not_stated"];
-  const colors = [NAVY, LAVENDER, '#dfc7ba'];
+  const colors = [NAVY, LAVENDER, '#CBD5E1'];
   const labels = ["First Nations", "Non-Indigenous", "Not Stated"];
 
   const stack = d3.stack().keys(keys);
@@ -966,10 +971,10 @@ function drawFirstNations(snapshot, history, filters, ui, sourceRows) {
   return table;
 }
 
-export function renderChart(id, snapshot, history, filters, ui, sourceRows, geoState) {
+export function renderChart(id, snapshot, history, filters, ui, sourceRows, geoData) {
   if (id === 'annual') return drawAnnual(snapshot, history, filters, ui);
   if (id === 'age') return drawAge(snapshot, history, filters, ui);
-  if (id === 'stateMap') return drawStateMap(snapshot, history, filters, ui, sourceRows, geoState);
+  if (id === 'stateMap') return drawStateMap(snapshot, history, filters, ui, sourceRows, geoData);
   if (id === 'distribution') return drawDistribution(snapshot, history, filters, ui);
   if (id === 'trends') return drawTrends(snapshot, history, filters, ui);
   if (id === 'heatmap') return drawHeatmap(snapshot, history, filters, ui);

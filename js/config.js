@@ -23,8 +23,7 @@ export const ROAD_USERS = [
   'Heavy transport passenger',
   'Heavy transport unknown position',
   'Pick-up truck or van occupant',
-  'Bus occupant',
-  'Other or unknown',
+  'Bus occupant'
 ];
 
 export const COUNTERPARTIES = [
@@ -45,7 +44,7 @@ export const FILTERS = [
   {
     key: 'remoteness',
     label: 'Remoteness',
-    values: ['Major Cities', 'Regional', 'Remote', 'Missing'],
+    values: ['Major Cities', 'Regional', 'Remote'],
   },
   { key: 'road_user', label: 'Road user', values: ROAD_USERS },
   { key: 'sex', label: 'Sex', values: ['Male', 'Female'] },
@@ -54,18 +53,18 @@ export const FILTERS = [
 ];
 
 export const COLORS = [
-  '#37507e',
-  '#7178aa',
-  '#9298c6',
-  '#dfc7ba',
-  '#a66b54',
-  '#626b7d',
-  '#78618b',
-  '#536e83',
-  '#98705c',
-  '#4b7771',
-  '#806475',
-  '#706e4f',
+  '#003087', // NHS Dark Blue
+  '#005EB8', // NHS Primary Blue
+  '#4C9EEB', // A lighter blue for contrast
+  '#CCDFF1', // NHS Light Blue
+  '#212B32', // NHS Text (Dark grey)
+  '#535e76', // Muted cool grey
+  '#8B99AF', // Medium cool grey
+  '#B5C2D4', // Soft grey-blue
+  '#0072CE', // Bright blue
+  '#E8EDEE', // Very light grey
+  '#333333', // Dark charcoal
+  '#768692'  // Neutral slate
 ];
 
 export function label(value) {
