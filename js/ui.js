@@ -127,6 +127,7 @@ export function interactive(selection, describe, select = null) {
     .attr('aria-label', describe)
     .classed('data-mark', true)
     .on('pointerenter', (event, value) => showTooltip(event, describe(value)))
+    .on('pointermove', (event, value) => showTooltip(event, describe(value)))
     .on('pointerleave', hideTooltip)
     .on('focus', (event, value) => showTooltip(event, describe(value)))
     .on('blur', hideTooltip)

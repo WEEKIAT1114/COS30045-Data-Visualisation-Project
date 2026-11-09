@@ -901,6 +901,7 @@ function drawStateMap(snapshot, history, filters, ui, sourceRows, geoData) {
 
 function drawFirstNations(snapshot, history, filters, ui, sourceRows) {
   let fnData = sourceRows.filter((d) => d.record_type === 'first_nations_annual');
+  
   const yearMap = new Map(d3.range(2011, 2022).map(y => [y, { year: y, first_nations: 0, non_indigenous: 0, not_stated: 0 }]));
   
   fnData.forEach(d => {
@@ -908,7 +909,6 @@ function drawFirstNations(snapshot, history, filters, ui, sourceRows) {
      const status = String(d.indigenous_status || '').toLowerCase();
      let mappedStatus = 'not_stated';
      
-     // Classify the indigenous status from the CSV
      if (status.includes('first') || (status.includes('indigenous') && !status.includes('non'))) {
          mappedStatus = 'first_nations';
      } else if (status.includes('non')) {
@@ -932,8 +932,10 @@ function drawFirstNations(snapshot, history, filters, ui, sourceRows) {
   }
 
   const { plot, innerWidth: width, innerHeight: height } = frame('firstNations', { top: 20, right: 15, bottom: 25, left: 45 });
+  
   const keys = ["first_nations", "non_indigenous", "not_stated"];
-  const colors = [NAVY, LAVENDER, '#CBD5E1'];
+  
+  const colors = [NAVY, LAVENDER, '#4C9EEB']; 
   const labels = ["First Nations", "Non-Indigenous", "Not Stated"];
 
   const stack = d3.stack().keys(keys);
@@ -947,21 +949,48 @@ function drawFirstNations(snapshot, history, filters, ui, sourceRows) {
 
   const area = d3.area()
     .x(d => x(d.data.year))
-    .y0(d => y(d[0]))
-    .y1(d => y(d[1]));
+    .y0(d => y(d[0])) 
+    .y1(d => y(d[1])); 
 
-  const paths = plot.selectAll(".layer")
+  const areaGroup = plot.append("g").attr("class", "area-group");
+  
+  areaGroup.selectAll("path.layer")
     .data(series)
     .join("path")
     .attr("class", "layer")
     .attr("fill", (d, i) => colors[i])
     .attr("d", area)
-    .attr("opacity", 0.9);
+    .attr("opacity", 0.9)
+    .style("cursor", "pointer")
+    .call(interactive, 
+      (d) => `${labels[keys.indexOf(d.key)]} area. Total counts over 2011-2021.`
+    );
 
-  interactive(
-    paths,
-    (d) => `${labels[keys.indexOf(d.key)]} area. Total counts over 2011-2021.`
-  );
+  const dotGroup = plot.append("g").attr("class", "dot-group");
+  
+  dotGroup.selectAll("g.dot-layer")
+    .data(series)
+    .join("g")
+    .selectAll("circle.data-point")
+    .data(d => {
+      return d.map(point => {
+        point.layerKey = d.key;
+        point.layerLabel = labels[keys.indexOf(d.key)];
+        return point;
+      });
+    })
+    .join("circle")
+    .attr("class", "data-point")
+    .attr("cx", d => x(d.data.year))
+    .attr("cy", d => y(d[1])) 
+    .attr("r", 4.5) 
+    .attr("fill", "#000000") 
+    .attr("stroke", "#ffffff") 
+    .attr("stroke-width", 1.5)
+    .style("pointer-events", "all") 
+    .call(interactive, 
+      (d) => `${d.layerLabel} (${d.data.year}): ${formatNumber(d[1] - d[0])} hospitalisations`
+    );
 
   const controls = document.querySelector('#controls-firstNations');
   if (controls) {
