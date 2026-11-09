@@ -14,17 +14,17 @@ export const TERMS = [
     title: 'Bed days',
     icon: 'calendar',
     text:
-      'The total reported patient days of care. Bed days can include ' +
+      'The total reported patient days of care. <b>Bed days</b> can include ' +
       'transferred-care episodes and cases ending in death. The master preserves ' +
-      'the original Bed days field. These totals describe hospital resource use.',
+      'the original <b>Bed days</b> field. These totals describe hospital resource use.',
   },
   {
     title: 'Sex',
     icon: 'chart',
     text:
-      'The menu offers All, Male and Female. All retains the combined intersex, ' +
+      'The menu offers <u>All</u>, <u>Male</u> and <u>Female</u>. All retains the combined intersex, ' +
       'indeterminate or missing category as well; its 15 hospitalisations over ' +
-      '2011–2021 are part of the national total. Selecting Male or Female selects ' +
+      '2011–2021 are part of the national total. Selecting <u>Male</u> or <u>Female</u> selects ' +
       'only that recorded category.',
   },
   {
@@ -33,17 +33,17 @@ export const TERMS = [
     text:
       'The injured person’s role at the time of injury, such as car driver, ' +
       'passenger, motorcyclist, cyclist or pedestrian. All 12 source categories ' +
-      'remain selectable. The donut’s Other road users combines the seven ' +
+      'remain selectable. The donut’s <u>Other</u> road users combines the seven ' +
       'categories outside its five named groups.',
   },
   {
     title: 'Remoteness',
     icon: 'location',
     text:
-      'The patient’s usual residential area, not the crash location. Regional ' +
-      'combines inner and outer regional areas. Remote combines remote and very ' +
-      'remote areas. Not recorded corresponds to the source’s other or unknown ' +
-      'residence category.',
+      'The patient’s usual residential area, not the crash location. <u>Regional</u> ' +
+      'combines inner and outer regional areas. <u>Remote</u> combines remote and very ' +
+      'remote areas. <u>Not recorded</u> corresponds to the source’s other or unknown ' +
+      'residence category, but this selection is excluded from the menu.',
   },
   {
     title: 'Counterparty',
@@ -57,8 +57,8 @@ export const TERMS = [
     title: 'Age and reporting year',
     icon: 'calendar',
     text:
-      'Age is measured at admission. Age bands have unequal spans; 75+ has no ' +
-      'upper limit. Year is the calendar year of hospital separation. All years ' +
+      '<b>Age</b> is measured at admission. <b>Age</b> bands have unequal spans; 75+ has no ' +
+      'upper limit. <b>Year</b> is the calendar year of hospital separation. All years ' +
       'adds 2011–2021. A selected year sets snapshots and highlights the ' +
       'corresponding points on full-history charts.',
   },

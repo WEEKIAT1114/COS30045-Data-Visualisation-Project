@@ -323,7 +323,7 @@ function renderGlossary() {
     )
     .join('');
   document.querySelector('#term-position').textContent =
-    `${glossaryPage + 1} / ${pageCount}`;
+    `Page ${glossaryPage + 1} / ${pageCount}`;
   document.querySelector('#term-previous').disabled = glossaryPage === 0;
   document.querySelector('#term-next').disabled = glossaryPage === pageCount - 1;
 }
