@@ -19,7 +19,7 @@ const filters = readFilters();
 let sourceRows = [];
 let geoData = null;
 let activeChart = 0;
-let glossaryPage = 0;
+let activeTerm = 0;
 let detailPage = 0;
 let detailChart = '';
 let detailMode = 'info';
@@ -275,57 +275,84 @@ function redraw() {
 function buildGlossary() {
   document.querySelector('#filters-shell').hidden = true;
   document.querySelector('#main').innerHTML = /* HTML */ `
-    <section class="glossary-screen">
+    <section class="glossary-screen" aria-labelledby="glossary-title">
       <div class="glossary-heading">
         <div>
-          <h1 style="font-size: 26px;">Glossary & source notes</h1>
+          <h1 id="glossary-title">Glossary and Source Note</h1>
         </div>
       </div>
-      <div class="glossary-grid"></div>
-      <div class="glossary-pager">
-        <button id="term-previous" class="text-button">‹ Previous</button>
-        <span id="term-position" aria-live="polite"></span>
-        <button id="term-next" class="text-button">Next ›</button>
+      <div class="glossary-workspace">
+        <div class="glossary-topics" role="group" aria-label="Choose a glossary topic">
+          ${TERMS.map(
+            (term, index) => /* HTML */ `
+              <button
+                class="topic-card"
+                data-term="${index}"
+                type="button"
+                aria-pressed="${index === activeTerm}"
+                aria-controls="term-reader"
+                aria-label="Explain ${term.title}"
+              >
+                <span class="topic-icon">${icon(term.icon)}</span>
+                <span class="topic-title">${term.shortTitle}</span>
+                <span class="topic-summary">${term.summary}</span>
+              </button>
+            `,
+          ).join('')}
+        </div>
+        <aside
+          class="term-reader"
+          id="term-reader"
+          aria-labelledby="active-term-title"
+          aria-live="polite"
+        >
+          <div class="term-reader-heading">
+            <span id="active-term-icon" class="reader-icon" aria-hidden="true"></span>
+            <h2 id="active-term-title"></h2>
+          </div>
+          <p id="active-term-description"></p>
+          <a id="active-term-link" class="term-source-link" hidden></a>
+        </aside>
       </div>
     </section>
   `;
-  document.querySelector('#term-previous').onclick = () => {
-    glossaryPage--;
-    renderGlossary();
-  };
-  document.querySelector('#term-next').onclick = () => {
-    glossaryPage++;
-    renderGlossary();
-  };
+
+  document.querySelectorAll('[data-term]').forEach((button) => {
+    button.addEventListener('click', () => {
+      activeTerm = Number(button.dataset.term);
+      renderGlossary();
+    });
+  });
   renderGlossary();
 }
 
 function renderGlossary() {
-  const perPage = innerWidth <= 900 ? 1 : innerHeight < 800 ? 4 : 6;
-  const pageCount = Math.ceil(TERMS.length / perPage);
-  glossaryPage = Math.max(0, Math.min(pageCount - 1, glossaryPage));
-  const grid = document.querySelector('.glossary-grid');
-  grid.style.setProperty('--term-rows', String(perPage / 2));
-  grid.innerHTML = TERMS.slice(glossaryPage * perPage, (glossaryPage + 1) * perPage)
-    .map(
-      (term) => /* HTML */ `
-        <article class="term-card">
-          <span class="term-icon">${icon(term.icon)}</span>
-          <div>
-            <h2>${term.title}</h2>
-            <p>${term.text}</p>
-            ${term.link
-              ? `<a href="${term.link}" ${term.link.startsWith('https:') ? 'target="_blank" rel="noreferrer"' : 'download'}>${term.linkText} ↗</a>`
-              : ''}
-          </div>
-        </article>
-      `,
-    )
-    .join('');
-  document.querySelector('#term-position').textContent =
-    `Page ${glossaryPage + 1} / ${pageCount}`;
-  document.querySelector('#term-previous').disabled = glossaryPage === 0;
-  document.querySelector('#term-next').disabled = glossaryPage === pageCount - 1;
+  const term = TERMS[activeTerm];
+  document.querySelectorAll('[data-term]').forEach((button) => {
+    button.setAttribute(
+      'aria-pressed',
+      String(Number(button.dataset.term) === activeTerm),
+    );
+  });
+  document.querySelector('#active-term-icon').innerHTML = icon(term.icon);
+  document.querySelector('#active-term-title').textContent = term.title;
+  document.querySelector('#active-term-description').textContent = term.text;
+
+  const link = document.querySelector('#active-term-link');
+  link.hidden = !term.link;
+  if (term.link) {
+    link.href = term.link;
+    link.textContent = term.linkText + ' ↗';
+    if (term.link.startsWith('https:')) {
+      link.target = '_blank';
+      link.rel = 'noreferrer';
+      link.removeAttribute('download');
+    } else {
+      link.removeAttribute('target');
+      link.removeAttribute('rel');
+      link.setAttribute('download', '');
+    }
+  }
 }
 
 function openDetails(id) {

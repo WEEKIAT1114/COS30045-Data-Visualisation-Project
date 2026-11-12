@@ -1,114 +1,135 @@
+// Plain-language glossary. Every topic is available on one fixed-screen page.
 // GenAI assistance is acknowledged in docs/AI-ACKNOWLEDGEMENT.md.
-// Short definitions are paginated so the glossary never requires vertical scrolling.
 export const TERMS = [
   {
     title: 'Hospitalised injuries',
+    shortTitle: 'Admissions',
     icon: 'bed',
+    summary: 'Hospital admissions after a road crash.',
     text:
-      'Source-defined road traffic injury cases resulting in hospital admission. ' +
-      'The source excludes in-hospital deaths within 30 days and applies ' +
-      'care-episode rules to reduce duplicate cases. A count is not necessarily a ' +
-      'count of distinct people or crashes.',
+      'These figures count hospital admissions following road traffic injuries. ' +
+      'A person may have more than one admission. The source applies rules to ' +
+      'reduce duplicate care episodes and excludes in-hospital deaths within 30 days.',
   },
   {
     title: 'Bed days',
+    shortTitle: 'Bed days',
     icon: 'calendar',
+    summary: 'The total days of hospital care recorded.',
     text:
-      'The total reported patient days of care. <b>Bed days</b> can include ' +
-      'transferred-care episodes and cases ending in death. The master preserves ' +
-      'the original <b>Bed days</b> field. These totals describe hospital resource use.',
+      'Bed days add up the days of care recorded across hospital episodes. ' +
+      'They help describe the demand on hospital services. The supplied total ' +
+      'can include transferred-care episodes and cases ending in death.',
   },
   {
     title: 'Sex',
+    shortTitle: 'Sex',
     icon: 'chart',
+    summary: 'The sex recorded in the hospital data.',
     text:
-      'The menu offers <u>All</u>, <u>Male</u> and <u>Female</u>. All retains the combined intersex, ' +
-      'indeterminate or missing category as well; its 15 hospitalisations over ' +
-      '2011–2021 are part of the national total. Selecting <u>Male</u> or <u>Female</u> selects ' +
-      'only that recorded category.',
+      'Choose All, Male or Female in the filter. All also retains the source’s ' +
+      'combined intersex, indeterminate or missing category. That category ' +
+      'accounts for 15 hospitalisations across 2011–2021.',
   },
   {
     title: 'Road user',
+    shortTitle: 'Road users',
     icon: 'car',
+    summary: 'The injured person’s role on the road.',
     text:
-      'The injured person’s role at the time of injury, such as car driver, ' +
-      'passenger, motorcyclist, cyclist or pedestrian. All 12 source categories ' +
-      'remain selectable. The donut’s <u>Other</u> road users combines the seven ' +
-      'categories outside its five named groups.',
+      'This describes the person who was injured: a driver, passenger, ' +
+      'motorcyclist, pedal cyclist or pedestrian, for example. The Road user ' +
+      'filter focuses on a selected role. Broader Other groupings should be ' +
+      'read with the chart’s own explanation.',
   },
   {
     title: 'Remoteness',
+    shortTitle: 'Home area',
     icon: 'location',
+    summary: 'Whether the patient lives in a city, regional or remote area.',
     text:
-      'The patient’s usual residential area, not the crash location. <u>Regional</u> ' +
-      'combines inner and outer regional areas. <u>Remote</u> combines remote and very ' +
-      'remote areas. <u>Not recorded</u> corresponds to the source’s other or unknown ' +
-      'residence category, but this selection is excluded from the menu.',
+      'Remoteness describes the patient’s usual home area. Regional combines ' +
+      'inner and outer regional areas; Remote combines remote and very remote ' +
+      'areas. The source also has other or unknown residence records, although ' +
+      'the current menu does not list those separately.',
   },
   {
     title: 'Counterparty',
+    shortTitle: 'Counterparty',
     icon: 'car',
+    summary: 'The other vehicle, object or circumstance involved.',
     text:
-      'The other vehicle, object or circumstance involved in the injury event. ' +
-      'Categories include another car, a fixed object and a non-collision ' +
-      'transport accident. It does not identify responsibility for a crash.',
+      'Counterparty means what else was involved in the injury event. It may ' +
+      'be another vehicle, a fixed object, or a non-collision circumstance. ' +
+      'This category does not tell us who was responsible for a crash.',
   },
   {
     title: 'Age and reporting year',
+    shortTitle: 'Age & year',
     icon: 'calendar',
+    summary: 'Age at admission and the year the hospital episode ended.',
     text:
-      '<b>Age</b> is measured at admission. <b>Age</b> bands have unequal spans; 75+ has no ' +
-      'upper limit. <b>Year</b> is the calendar year of hospital separation. All years ' +
-      'adds 2011–2021. A selected year sets snapshots and highlights the ' +
-      'corresponding points on full-history charts.',
+      'Age is recorded at admission. Year refers to the calendar year of ' +
+      'hospital separation. A selected year sets the snapshots and highlights ' +
+      'the trend points; All years combines 2011–2021. Age bands cover ' +
+      'different spans, and 75+ has no upper limit.',
   },
   {
     title: 'Bed days per hospitalisation',
+    shortTitle: 'Bed-day ratio',
     icon: 'bed',
+    summary: 'Reported bed days divided by hospitalisations.',
     text:
-      'Divide summed reported bed days by summed hospitalisations. The two source ' +
-      'measures have different episode and death rules, so this is a ratio of ' +
-      'published totals, not a mean individual length of stay. A zero ' +
-      'hospitalisation denominator produces an unavailable ratio.',
+      'We divide summed reported bed days by summed hospitalisations. The two ' +
+      'measures use different care-episode and death rules, so this describes ' +
+      'hospital burden rather than an individual’s average stay. A zero ' +
+      'hospitalisation total has no available ratio.',
   },
   {
     title: 'Comparing years',
+    shortTitle: 'Year comparisons',
     icon: 'chart',
+    summary: 'Reporting-rule changes can affect the trends.',
     text:
-      'Victoria changed admission criteria in 2012; NSW changed criteria in 2017. ' +
-      'The trend charts show those breaks. Changes in recorded counts can reflect ' +
-      'reporting rules and population or travel changes. Counts alone do not ' +
-      'measure individual risk.',
+      'Admission criteria changed in Victoria in 2012 and NSW in 2017. ' +
+      'Differences across these years can reflect reporting rules as well as ' +
+      'changes in injuries, population and travel. Keep those changes in mind ' +
+      'when interpreting a rise or fall.',
   },
   {
-    title: 'Additional summary records',
+    title: 'Additional summary data',
+    shortTitle: 'Extra data',
     icon: 'info',
+    summary: 'State and First Nations figures have a different level of detail.',
     text:
-      'The combined CSV also contains state_annual and first_nations_annual ' +
-      'records. They lack the joint demographic and counterparty fields required ' +
-      'by these filters. The charts use national_detail only. Adding all three ' +
-      'record types would count the same injuries more than once.',
+      'The master also includes annual state and First Nations summaries. ' +
+      'They do not contain every demographic and counterparty field together. ' +
+      'Read those summaries within their supported scope, and avoid adding ' +
+      'them to national detail as extra injuries.',
   },
   {
-    title: 'Rates and source',
+    title: 'Rates and data sources',
+    shortTitle: 'Rates & sources',
     icon: 'book',
+    summary: 'Where the figures come from and what a rate needs.',
     text:
-      'Population rates require matching population denominators. These are ' +
-      'absent from the supplied master, so this website reports counts, shares ' +
-      'and bed-day ratios. Data: BITRE September 2023 release, using the AIHW ' +
+      'Population rates need a matching population denominator. Those inputs ' +
+      'are absent here, so the measures are counts, shares and bed-day ratios. ' +
+      'The data comes from BITRE’s September 2023 release, using the AIHW ' +
       'National Hospital Morbidity Database.',
     link: 'https://www.bitre.gov.au/resource/road-safety/hospitalised-injury',
-    linkText: 'Open the BITRE source',
+    linkText: 'Visit the BITRE source',
   },
   {
-    title: 'Project and acknowledgements',
+    title: 'About this project',
+    shortTitle: 'The project',
     icon: 'book',
+    summary: 'The people, tools and acknowledgements behind the dashboard.',
     text:
-      'COS30045 · Group 3. Data processing: the supplied KNIME workflow. Charts: ' +
-      'D3.js v7.9.0, ISC licence. OpenAI Codex assisted with the implementation ' +
-      'and checks; the prompt summary and data limitations are documented with ' +
-      'the code.',
+      'Created by Group 3 for COS30045. The data was prepared in KNIME and ' +
+      'the interactive charts use D3.js. OpenAI Codex helped with implementation ' +
+      'and checks; acknowledgements and data notes are included with the code.',
     link: 'data/road_crash_master.csv',
-    linkText: 'Download the supplied master CSV',
+    linkText: 'Download the source CSV',
   },
 ];

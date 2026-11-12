@@ -4,6 +4,7 @@ import {
   AGE_GROUPS,
   ROAD_USERS,
   COLORS,
+  THEME,
   label,
   formatNumber,
   formatRatio,
@@ -11,10 +12,10 @@ import {
 import { totals, groupRows, annualData, distributionData, matrixData } from './data.js';
 import { frame, emptyChart, interactive, contrastText } from './ui.js';
 
-// Clinical Calm Blue & Cool Grey Palette (NHS Design System)
-const NAVY = '#003087';
-const LAVENDER = '#005EB8';
-const trendColors = [NAVY, '#4C9EEB', '#212B32'];
+// Softer categorical fills; darker companions keep thin trend lines legible.
+const PRIMARY = THEME.primary;
+const BLUE = THEME.blue;
+const trendColors = [PRIMARY, THEME.blueLine, THEME.slateLine];
 
 function lineAxes(plot, x, y, width, height) {
   plot
@@ -89,7 +90,7 @@ function drawAnnual(snapshot, history, filters, ui) {
     .attr('class', 'data-line')
     .attr('d', line)
     .attr('fill', 'none')
-    .attr('stroke', NAVY)
+    .attr('stroke', PRIMARY)
     .attr('stroke-width', 2.3);
 
   const points = plot
@@ -102,8 +103,8 @@ function drawAnnual(snapshot, history, filters, ui) {
   points
     .append('circle')
     .attr('r', (item) => (String(item.key) === filters.year ? 4.8 : 3))
-    .attr('fill', (item) => (String(item.key) === filters.year ? NAVY : '#fff'))
-    .attr('stroke', NAVY)
+    .attr('fill', (item) => (String(item.key) === filters.year ? PRIMARY : '#fff'))
+    .attr('stroke', PRIMARY)
     .attr('stroke-width', 1.5);
   interactive(
     points,
@@ -192,8 +193,8 @@ function drawAge(snapshot, history, filters, ui) {
     .attr('y', (item) => y(item.count))
     .attr('width', x.bandwidth())
     .attr('height', (item) => height - y(item.count))
-    .attr('fill', (item) => (item.count === max ? NAVY : LAVENDER))
-    .attr('stroke', NAVY);
+    .attr('fill', (item) => (item.count === max ? PRIMARY : BLUE))
+    .attr('stroke', 'none');
   interactive(
     bars,
     (item) =>
@@ -297,7 +298,7 @@ function drawDistribution(snapshot, history, filters, ui) {
     .attr('cy', rowHeight / 2)
     .attr('r', 4)
     .attr('fill', color)
-    .attr('stroke', NAVY)
+    .attr('stroke', 'none')
     .attr('stroke-width', 0.5);
   items
     .append('text')
@@ -449,7 +450,7 @@ function drawHeatmap(snapshot, history, filters, ui) {
   const visibleAges = ages.slice(rowPage * rowsPerPage, (rowPage + 1) * rowsPerPage);
   const max = d3.max(values, (item) => item.count) || 0;
   const color = d3
-    .scaleSequential(d3.piecewise(d3.interpolateRgb, ['#F1F5F9', LAVENDER, NAVY]))
+    .scaleSequential(d3.piecewise(d3.interpolateRgb, THEME.heatmap))
     .domain([0, max || 1]);
   const x = d3.scaleBand().domain(visibleUsers).range([0, width]).padding(0.025);
   const y = d3.scaleBand().domain(visibleAges).range([0, height]).padding(0.04);
@@ -460,8 +461,8 @@ function drawHeatmap(snapshot, history, filters, ui) {
     .attr('width', 6)
     .attr('height', 6)
     .attr('patternUnits', 'userSpaceOnUse');
-  pattern.append('rect').attr('width', 6).attr('height', 6).attr('fill', '#F8FAFC');
-  pattern.append('path').attr('d', 'M0 6L6 0').attr('stroke', '#E2E8F0');
+  pattern.append('rect').attr('width', 6).attr('height', 6).attr('fill', '#F1F5F9');
+  pattern.append('path').attr('d', 'M0 6L6 0').attr('stroke', '#C6CEDA');
 
   visibleUsers.forEach((user) => {
     const words = shortRoad[user];
@@ -515,7 +516,7 @@ function drawHeatmap(snapshot, history, filters, ui) {
     .attr('dominant-baseline', 'middle')
     .attr('text-anchor', 'middle')
     .attr('fill', (item) =>
-      item.count === null ? NAVY : contrastText(color(item.count)),
+      item.count === null ? PRIMARY : contrastText(color(item.count)),
     )
     .text((item) => (item.count === null ? '—' : formatNumber(item.count)));
   interactive(
@@ -703,7 +704,7 @@ function drawScatter(snapshot, history, filters, ui) {
     .attr('cy', (item) => y(item.ratio))
     .attr('r', 5.5)
     .attr('fill', (item) => COLORS[ROAD_USERS.indexOf(item.key)])
-    .attr('stroke', NAVY)
+    .attr('stroke', PRIMARY)
     .attr('stroke-width', 1.2);
   interactive(
     points,
@@ -778,11 +779,11 @@ function drawStateMap(snapshot, history, filters, ui, sourceRows, geoData) {
   // Remove top/bottom margins to allow the map to stretch better
   const { plot, svg, innerWidth: width, innerHeight: height } = frame('stateMap', { top: 0, right: 10, bottom: 0, left: 10 });
   
-  // Add a light calm grey-blue background rectangle for the "ocean"
+  // Add a light neutral background rectangle for the "ocean"
   plot.insert("rect", ":first-child")
       .attr("width", width)
       .attr("height", height)
-      .attr("fill", "#F1F5F9") // Calm ocean background
+      .attr("fill", "#F1F5F9") // Neutral map background
       .attr("rx", 6);
 
   const projection = d3.geoMercator().fitExtent([[10, 10], [width - 10, height - 10]], geoData);
@@ -790,10 +791,10 @@ function drawStateMap(snapshot, history, filters, ui, sourceRows, geoData) {
   
   const maxVal = d3.max(Array.from(rolled.values())) || 0;
   
-  // Clinical calm blue color scale
+  // Ordered light-to-dark blue/lavender scale
   const colorScale = d3.scaleQuantize()
     .domain([0, maxVal])
-    .range(['#F8FAFC', '#DBEAFE', '#93C5FD', '#60A5FA', '#3B82F6', '#1D4ED8']);
+    .range(THEME.map);
 
   const paths = plot.selectAll("path.state")
     .data(geoData.features)
@@ -805,7 +806,7 @@ function drawStateMap(snapshot, history, filters, ui, sourceRows, geoData) {
       const count = rolled.get(stateKey) || 0;
       return count === 0 ? '#F1F5F9' : colorScale(count);
     })
-    .attr("stroke", "#1E293B") // Dark outline for clear borders
+    .attr("stroke", "#53657A") // Dark outline for clear borders
     .attr("stroke-width", 1);
 
   const isExpanded = document.querySelector('.dashboard-shell.detail') !== null || window.location.href.includes('chart.html') || width > 600;
@@ -822,11 +823,11 @@ function drawStateMap(snapshot, history, filters, ui, sourceRows, geoData) {
     })
     .attr("text-anchor", "middle")
     .attr("dy", ".35em")
-    .style("font-size", "11px")
+    .style("font-size", "12px")
     .style("font-family", "'Segoe UI', sans-serif")
     .style("font-weight", "600")
     .style("pointer-events", "none")
-    .style("fill", "#0F172A") // Dark text
+    .style("fill", "#212B32") // Dark text
     .style("stroke", "#ffffff") // White stroke halo for high contrast
     .style("stroke-width", "2.5px")
     .style("paint-order", "stroke fill")
@@ -848,15 +849,15 @@ function drawStateMap(snapshot, history, filters, ui, sourceRows, geoData) {
       .attr("height", legendHeight)
       .attr("fill", "#ffffff")
       .attr("rx", 6)
-      .attr("stroke", "#e9e8ef")
+      .attr("stroke", "#E1E6EE")
       .attr("stroke-width", 1.5);
 
   legend.append("text")
       .attr("x", 15) 
       .attr("y", isExpanded ? 24 : 16) 
-      .style("font-size", isExpanded ? "12px" : "10px")
+      .style("font-size", isExpanded ? "14px" : "12px")
       .style("font-weight", "bold")
-      .style("fill", NAVY)
+      .style("fill", PRIMARY)
       .text("Hospitalisations");
 
   const thresholds = colorScale.thresholds();
@@ -881,7 +882,7 @@ function drawStateMap(snapshot, history, filters, ui, sourceRows, geoData) {
       .attr("x", isExpanded ? 33 : 29)
       .attr("y", isExpanded ? 10 : 8)
       .attr("text-anchor", "start")
-      .style("font-size", isExpanded ? "11px" : "9.5px")
+      .style("font-size", isExpanded ? "12px" : "11px")
       .style("fill", "var(--muted)")
       .text((d, i) => `${formatNumber(Math.round(ranges[i]))} - ${formatNumber(Math.round(ranges[i+1]))}`);
 
@@ -935,7 +936,7 @@ function drawFirstNations(snapshot, history, filters, ui, sourceRows) {
   
   const keys = ["first_nations", "non_indigenous", "not_stated"];
   
-  const colors = [NAVY, LAVENDER, '#4C9EEB']; 
+  const colors = [THEME.primary, THEME.blue, THEME.sky]; 
   const labels = ["First Nations", "Non-Indigenous", "Not Stated"];
 
   const stack = d3.stack().keys(keys);
@@ -984,7 +985,7 @@ function drawFirstNations(snapshot, history, filters, ui, sourceRows) {
     .attr("cx", d => x(d.data.year))
     .attr("cy", d => y(d[1])) 
     .attr("r", 4.5) 
-    .attr("fill", "#000000") 
+    .attr("fill", "#212B32") 
     .attr("stroke", "#ffffff") 
     .attr("stroke-width", 1.5)
     .style("pointer-events", "all") 
@@ -994,7 +995,7 @@ function drawFirstNations(snapshot, history, filters, ui, sourceRows) {
 
   const controls = document.querySelector('#controls-firstNations');
   if (controls) {
-    controls.innerHTML = keys.map((k, i) => `<span style="margin-right:12px; font-size:10px; display:inline-flex; align-items:center;"><span style="display:inline-block; width:10px; height:10px; background:${colors[i]}; margin-right:4px; border-radius:2px;"></span>${labels[i]}</span>`).join('');
+    controls.innerHTML = keys.map((k, i) => `<span style="margin-right:12px; font-size:12px; display:inline-flex; align-items:center;"><span style="display:inline-block; width:10px; height:10px; background:${colors[i]}; margin-right:4px; border-radius:2px;"></span>${labels[i]}</span>`).join('');
   }
 
   return table;

@@ -1,7 +1,11 @@
 # Road Crash Hospitalisation Dashboard
 
 COS30045 · Group 3. A fixed-screen D3.js website using the updated KNIME export.
-The design follows the supplied navy, lavender and sand reference screens.
+The interface restores the earlier blue header, blue/slate summaries and blue
+chart palette while retaining the current page and chart layout.
+Age bars and donut legend dots have no decorative outlines.
+Chart types, data, calculations and interactions are preserved; chart paint colours
+are coordinated with the lighter interface.
 
 ## Run locally
 
@@ -24,7 +28,7 @@ framework or build step is needed. D3 v7.9.0 is included locally with its licenc
   count and reported bed days per hospitalisation.
 - **Insights:** exactly five charts: road-user trends, age/road-user heatmap,
   counterparty treemap, count/bed-day scatterplot and bed-day burden by age.
-- **Glossary:** paginated definitions, source notes and calculation limits.
+- **Glossary:** all 12 topics on one fixed screen. Select a topic to read a plain-English explanation, example and relevant source link. There are no glossary pages or scroll areas.
 - **Expanded chart:** each chart's expand icon opens a larger view in `chart.html`.
 
 Six shared filters select year, remoteness, road user, sex, age and counterparty.

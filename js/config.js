@@ -52,19 +52,39 @@ export const FILTERS = [
   { key: 'counterparty', label: 'Counterparty', values: COUNTERPARTIES },
 ];
 
+// Blue and slate palette from the user's earlier dashboard reference.
+// Darker companions keep thin trend lines readable on white panels.
+export const THEME = {
+  paper: '#F0F4F5',
+  grey: '#B5C2D4',
+  slate: '#535E76',
+  pale: '#F1F5F9',
+  lightBlue: '#CCDFF1',
+  powderBlue: '#CCDFF1',
+  blue: '#005EB8',
+  sky: '#4C9EEB',
+  primary: '#003087',
+  ink: '#212B32',
+  blueLine: '#2D82C7',
+  slateLine: '#212B32',
+  heatmap: ['#F1F5F9', '#83B3DF', '#003087'],
+  map: ['#F8FAFC', '#DBEAFE', '#93C5FD', '#60A5FA', '#3B82F6', '#1D4ED8'],
+};
+
+// Category order is unchanged; only the category colours are restored.
 export const COLORS = [
-  '#003087', // NHS Dark Blue
-  '#005EB8', // NHS Primary Blue
-  '#4C9EEB', // A lighter blue for contrast
-  '#CCDFF1', // NHS Light Blue
-  '#212B32', // NHS Text (Dark grey)
-  '#535e76', // Muted cool grey
-  '#8B99AF', // Medium cool grey
-  '#B5C2D4', // Soft grey-blue
-  '#0072CE', // Bright blue
-  '#E8EDEE', // Very light grey
-  '#333333', // Dark charcoal
-  '#768692'  // Neutral slate
+  THEME.primary,
+  THEME.blue,
+  THEME.sky,
+  THEME.lightBlue,
+  THEME.ink,
+  THEME.slate,
+  '#8B99AF',
+  '#B5C2D4',
+  '#0072CE',
+  '#E8EDEE',
+  '#333333',
+  '#768692',
 ];
 
 export function label(value) {
